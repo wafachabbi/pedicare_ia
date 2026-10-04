@@ -21,14 +21,34 @@ Mini-projet — IA for Software Engineering — ESPRIT A.U 2026-2027
 
 ## 👥 Répartition des modules
 
+### Travail de groupe — Authentification (déjà implémenté ✅)
+- Inscription avec choix de rôle (Parent / Pédiatre)
+- Connexion avec redirection automatique selon le rôle
+- JWT + bcrypt + middleware auth
+
+---
+
+### Espace Parent 👨‍👩‍👧
+
 | Membre | Module | Description |
 |--------|--------|-------------|
-| Tous | **Authentification** | Register / Login / JWT — déjà implémenté |
-| Membre 1 | **Profils Enfant + Étapes de développement** | CRUD profils + jalons OMS + IA |
-| Membre 2 | **Carnet de Croissance + Frise Chronologique** | Mesures + courbes Recharts + IA |
-| Membre 3 | **Carnet de Vaccination + Agenda** | Vaccins + RDV + alertes + IA |
-| Membre 4 | **Journal des Observations + Mode Consultation** | Journal + vue partage + IA |
-| Membre 5 | **PetitGuide IA + Fiche Consultation** | Chatbot IA + génération fiche + export PDF |
+| Membre 1 | **Profils Enfant + Étapes de développement** | CRUD profils enfants + suivi jalons OMS + IA (comparaison jalons) |
+| Membre 2 | **Carnet de Croissance + Frise Chronologique** | Saisie mesures + courbes Recharts + frise unifiée + IA (analyse courbe) |
+| Membre 3 | **Carnet de Vaccination + Agenda** | Vaccins + calendrier + alertes + RDV + IA (résumé rappels) |
+| Membre 4 | **Journal des Observations + Mode Consultation** | Journal catégorisé + vue partage épurée + IA (synthèse observations) |
+| Membre 5 | **PetitGuide IA + Fiche Consultation "1 clic"** | Chatbot IA pédiatrique + génération fiche + export PDF |
+
+---
+
+### Espace Pédiatre 👨‍⚕️
+
+| Membre | Module | Description |
+|--------|--------|-------------|
+| Membre 1 | **Profil pédiatre** | Affichage et modification des infos du pédiatre (nom, spécialité, téléphone) |
+| Membre 2 | **Courbes de croissance partagées** | Visualisation des mesures des enfants dont les fiches sont partagées |
+| Membre 3 | **Suivi vaccinal partagé** | Consultation du carnet vaccinal partagé par le parent |
+| Membre 4 | **Fiches partagées + Notes de suivi** | Consulter les fiches partagées par les parents + ajouter des notes médicales |
+| Membre 5 | **IA résumé pédiatre** | Génération d'un résumé IA de l'état de santé d'un enfant depuis la fiche partagée |
 
 ---
 
@@ -64,9 +84,6 @@ OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxx
 NODE_ENV=development
 ```
 
-> **MONGO_URI** : récupérer depuis MongoDB Atlas → Connect → Drivers  
-> **OPENAI_API_KEY** : récupérer depuis [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
-
 Installer les dépendances :
 
 ```bash
@@ -87,7 +104,7 @@ npm install
 cd server
 npm run dev
 ```
-✅ Résultat attendu :
+Résultat attendu :
 ```
 ✅ MongoDB connecté
 🚀 Serveur PediCare AI démarré sur le port 5000
@@ -98,7 +115,7 @@ npm run dev
 cd client
 npm run dev
 ```
-✅ Résultat attendu :
+Résultat attendu :
 ```
 ➜  Local:   http://localhost:5173/
 ```
@@ -111,32 +128,54 @@ Ouvrir **http://localhost:5173** dans le navigateur.
 
 ```
 pedicare_ia/
-├── client/                      # React + Vite (front-end)
-│   └── src/
-│       ├── contexts/            # AuthContext (JWT)
-│       ├── hooks/               # useAuth
-│       ├── services/            # api.js, auth.service.js
-│       ├── pages/
-│       │   ├── auth/            # LoginPage, RegisterPage ✅
-│       │   ├── children/        # Membre 1
-│       │   ├── growth/          # Membre 2
-│       │   ├── vaccination/     # Membre 3
-│       │   ├── agenda/          # Membre 3
-│       │   ├── journal/         # Membre 4
-│       │   ├── timeline/        # Membre 2
-│       │   ├── consultation/    # Membre 4 & 5
-│       │   └── petitguide/      # Membre 5
-│       └── components/
-│           ├── layout/          # AppShell, Sidebar ✅
-│           └── ui/              # GlassCard, AIBadge, etc. ✅
+├── client/src/
+│   ├── contexts/AuthContext.jsx        ✅ JWT session (parent + pédiatre)
+│   ├── hooks/useAuth.js                ✅
+│   ├── services/
+│   │   ├── api.js                      ✅ axios + intercepteur JWT
+│   │   └── auth.service.js             ✅
+│   ├── pages/
+│   │   ├── auth/
+│   │   │   ├── LoginPage.jsx           ✅
+│   │   │   └── RegisterPage.jsx        ✅ (choix rôle parent/pédiatre)
+│   │   ├── pediatre/
+│   │   │   └── PediatreDashboardPage   ✅ Home pédiatre
+│   │   ├── children/                   → Membre 1
+│   │   ├── growth/                     → Membre 2
+│   │   ├── vaccination/                → Membre 3
+│   │   ├── agenda/                     → Membre 3
+│   │   ├── journal/                    → Membre 4
+│   │   ├── timeline/                   → Membre 2
+│   │   ├── consultation/               → Membre 4 & 5
+│   │   └── petitguide/                 → Membre 5
+│   └── components/
+│       ├── layout/
+│       │   ├── AppShell.jsx            ✅ Layout parent
+│       │   ├── Sidebar.jsx             ✅ Navigation parent
+│       │   ├── PediatreShell.jsx       ✅ Layout pédiatre
+│       │   └── PediatreSidebar.jsx     ✅ Navigation pédiatre
+│       └── ui/
+│           ├── GlassCard.jsx           ✅
+│           ├── AIBadge.jsx             ✅
+│           ├── LoadingSpinner.jsx      ✅
+│           ├── ErrorMessage.jsx        ✅
+│           ├── ConfirmModal.jsx        ✅
+│           └── Tooltip.jsx             ✅
 │
-└── server/                      # Node.js + Express (back-end)
-    ├── models/                  # Schémas Mongoose ✅
-    ├── middleware/              # auth.js, errorHandler.js ✅
-    ├── controllers/             # auth.controller.js ✅
-    ├── routes/                  # auth.routes.js ✅
-    ├── services/                # LLM, Anonymiseur, Validateur
-    └── tests/                   # Tests unitaires + propriétés
+└── server/
+    ├── models/
+    │   ├── User.js                     ✅ (role: parent | pediatre)
+    │   ├── Child.js                    ✅
+    │   ├── Measurement.js              ✅
+    │   ├── Vaccination.js              ✅
+    │   ├── Appointment.js              ✅
+    │   └── JournalEntry.js             ✅
+    ├── middleware/
+    │   ├── auth.js                     ✅ vérifie JWT
+    │   ├── checkRole.js                ✅ vérifie le rôle
+    │   └── errorHandler.js             ✅
+    ├── controllers/auth.controller.js  ✅
+    └── routes/auth.routes.js           ✅
 ```
 
 ---
@@ -165,7 +204,23 @@ import GrowthPage from './pages/growth/GrowthPage'
 <Route path="/growth" element={<GrowthPage />} />
 ```
 
-### Composants UI disponibles (prêts à l'emploi)
+### Middleware disponibles (back-end)
+
+```js
+const auth = require('../middleware/auth')
+const checkRole = require('../middleware/checkRole')
+
+// Route accessible à tous les utilisateurs connectés
+router.get('/', auth, controller.getAll)
+
+// Route accessible uniquement aux parents
+router.get('/children', auth, checkRole('parent'), controller.getChildren)
+
+// Route accessible uniquement aux pédiatres
+router.get('/fiches', auth, checkRole('pediatre'), controller.getFiches)
+```
+
+### Composants UI disponibles (front-end)
 
 ```jsx
 import GlassCard from '../../components/ui/GlassCard'
@@ -180,58 +235,38 @@ import ConfirmModal from '../../components/ui/ConfirmModal'
 ```js
 import api from '../../services/api'
 
-// GET avec JWT automatique
 const res = await api.get('/children')
-
-// POST
 const res = await api.post('/children', { firstName: 'Emma', dateOfBirth: '2023-01-01', gender: 'F' })
-```
-
-### Middleware auth (back-end)
-
-```js
-const auth = require('../middleware/auth')
-
-// Protéger une route
-router.get('/', auth, controller.getAll)
 ```
 
 ---
 
 ## 🎨 Design système
 
-- **Couleur primaire** : mint (`#22c55e`)
-- **Couleur secondaire** : sky (`#0ea5e9`)
-- **Couleur IA** : violet (`#8b5cf6`) — toujours utiliser pour les réponses IA + `<AIBadge />`
-- **Style des cards** : classe `glass-card` (glassmorphism)
-- **Dark mode** : supporté via Tailwind `dark:` — déjà configuré
+- **Couleur Parent** : mint (`#22c55e`)
+- **Couleur Pédiatre** : sky (`#0ea5e9`)
+- **Couleur IA** : violet (`#8b5cf6`) — toujours avec `<AIBadge />`
+- **Style des cards** : classe CSS `glass-card`
+- **Dark mode** : supporté via Tailwind `dark:`
 
 ---
 
 ## ⚠️ Règles importantes
 
 - Ne **jamais** committer le fichier `.env`
-- Ne **jamais** envoyer des données personnelles brutes au LLM — utiliser l'Anonymiseur
-- Toujours faire un `git pull` avant de commencer à travailler
-- Travailler sur une branche par feature : `git checkout -b feature/croissance`
+- Ne **jamais** envoyer des données personnelles brutes au LLM
+- Toujours `git pull` avant de commencer
+- Travailler sur une branche : `git checkout -b feature/mon-module`
 
 ---
 
 ## 🌿 Workflow Git recommandé
 
 ```bash
-# Avant de commencer
 git pull origin main
-
-# Créer sa branche
 git checkout -b feature/mon-module
-
-# Commiter son travail
 git add .
 git commit -m "feat: ajout carnet de croissance"
-
-# Pousser sa branche
 git push origin feature/mon-module
-
 # Créer une Pull Request sur GitHub
 ```
