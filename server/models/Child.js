@@ -25,6 +25,16 @@ const childSchema = new mongoose.Schema({
   vaccineRemindersEnabled: {
     type: Boolean,
     default: false
+  },
+  bloodType: {
+    type: String,
+    enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Inconnu'],
+    default: 'Inconnu'
+  },
+  allergies: {
+    type: String,
+    maxlength: [500, 'Allergies trop longues'],
+    default: ''
   }
 }, { timestamps: true })
 

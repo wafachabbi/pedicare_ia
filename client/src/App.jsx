@@ -1,11 +1,15 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
+import { ChildProvider } from './contexts/ChildContext'
 import { useAuth } from './hooks/useAuth'
 import AppShell from './components/layout/AppShell'
 import PediatreShell from './components/layout/PediatreShell'
 import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
+import DashboardPage from './pages/DashboardPage'
+import ChildFormPage from './pages/children/ChildFormPage'
 import PediatreDashboardPage from './pages/pediatre/PediatreDashboardPage'
+import PediatreProfilePage from './pages/pediatre/PediatreProfilePage'
 import LoadingSpinner from './components/ui/LoadingSpinner'
 
 const PlaceholderPage = ({ title }) => (
@@ -15,14 +19,12 @@ const PlaceholderPage = ({ title }) => (
   </div>
 )
 
-// Guard : utilisateur authentifié
 function PrivateRoute({ children }) {
   const { isAuthenticated, loading } = useAuth()
   if (loading) return <div className="flex items-center justify-center min-h-screen"><LoadingSpinner size="lg" /></div>
   return isAuthenticated ? children : <Navigate to="/login" replace />
 }
 
-// Guard : rôle spécifique
 function RoleRoute({ children, role }) {
   const { user, loading } = useAuth()
   if (loading) return <div className="flex items-center justify-center min-h-screen"><LoadingSpinner size="lg" /></div>
@@ -31,13 +33,10 @@ function RoleRoute({ children, role }) {
   return children
 }
 
-// Guard : redirige vers le bon dashboard selon le rôle
 function PublicRoute({ children }) {
   const { isAuthenticated, user, loading } = useAuth()
   if (loading) return null
-  if (isAuthenticated) {
-    return <Navigate to={user?.role === 'pediatre' ? '/pediatre/dashboard' : '/dashboard'} replace />
-  }
+  if (isAuthenticated) return <Navigate to={user?.role === 'pediatre' ? '/pediatre/dashboard' : '/dashboard'} replace />
   return children
 }
 
@@ -49,9 +48,10 @@ function AppRoutes() {
       <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
 
       {/* Espace Parent */}
-      <Route element={<PrivateRoute><RoleRoute role="parent"><AppShell /></RoleRoute></PrivateRoute>}>
-        <Route path="/dashboard" element={<PlaceholderPage title="Tableau de bord" />} />
-        <Route path="/children" element={<PlaceholderPage title="Profils Enfants" />} />
+      <Route element={<PrivateRoute><RoleRoute role="parent"><ChildProvider><AppShell /></ChildProvider></RoleRoute></PrivateRoute>}>
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/children/new" element={<ChildFormPage />} />
+        <Route path="/children/:id/edit" element={<ChildFormPage />} />
         <Route path="/growth" element={<PlaceholderPage title="Carnet de Croissance" />} />
         <Route path="/vaccination" element={<PlaceholderPage title="Carnet de Vaccination" />} />
         <Route path="/agenda" element={<PlaceholderPage title="Agenda" />} />
@@ -64,6 +64,7 @@ function AppRoutes() {
       {/* Espace Pédiatre */}
       <Route element={<PrivateRoute><RoleRoute role="pediatre"><PediatreShell /></RoleRoute></PrivateRoute>}>
         <Route path="/pediatre/dashboard" element={<PediatreDashboardPage />} />
+        <Route path="/pediatre/profile" element={<PediatreProfilePage />} />
         <Route path="/pediatre/fiches" element={<PlaceholderPage title="Fiches partagées" />} />
         <Route path="/pediatre/croissance" element={<PlaceholderPage title="Courbes de croissance" />} />
         <Route path="/pediatre/vaccinations" element={<PlaceholderPage title="Suivi vaccinal" />} />
