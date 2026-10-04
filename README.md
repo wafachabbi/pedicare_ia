@@ -19,17 +19,7 @@ Mini-projet — IA for Software Engineering — ESPRIT A.U 2026-2027
 
 ---
 
-## 👥 Répartition des modules
 
-**Travail de groupe** — Authentification (inscription / connexion parent & pédiatre) + Profil Enfant (CRUD) ✅
-
-- (Membre 1) — Profil Enfant + Étapes de développement + IA jalons OMS
-- (Membre 2) — Carnet de Croissance + Frise Chronologique + IA analyse courbe
-- (Membre 3) — Vaccination + Agenda + IA résumé rappels
-- (Membre 4) — Journal des Observations + Mode Consultation + IA synthèse journal
-- (Membre 5) — PetitGuide IA + Fiche Consultation "1 clic" + Pipeline IA central
-
----
 
 ## Les 5 modules fonctionnels
 
