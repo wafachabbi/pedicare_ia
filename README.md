@@ -21,122 +21,23 @@ Mini-projet — IA for Software Engineering — ESPRIT A.U 2026-2027
 
 ## 👥 Répartition des modules
 
-### Travail de groupe — Authentification (déjà implémenté ✅)
-- Inscription avec choix de rôle (Parent / Pédiatre) via `POST /api/auth/register`
-- Connexion sécurisée via `POST /api/auth/login` avec redirection automatique selon le rôle
-- Gestion des tokens JWT (24h) + hachage bcrypt des mots de passe
-- Middleware `auth.js` (vérification JWT) et `checkRole.js` (vérification du rôle)
+**Travail de groupe** — Authentification (inscription / connexion parent & pédiatre) ✅
+
+- (Membre 1) — Profil Enfant + Étapes de développement + IA jalons OMS
+- (Membre 2) — Carnet de Croissance + Frise Chronologique + IA analyse courbe
+- (Membre 3) — Vaccination + Agenda + IA résumé rappels
+- (Membre 4) — Journal des Observations + Mode Consultation + IA synthèse journal
+- (Membre 5) — PetitGuide IA + Fiche Consultation "1 clic" + Pipeline IA central
 
 ---
 
 ## Les 5 modules fonctionnels
 
-### Module 1 : Profil Enfant & Étapes de développement
-**Responsable : Membre 1**
-
-**Espace Parent :**
-- Création d'un ou plusieurs profils enfant (prénom, date de naissance, genre) via `POST /api/children`
-- Consultation et modification des profils enfant via `GET/PUT /api/children/:id`
-- Suppression d'un profil avec confirmation et suppression en cascade de toutes les données associées via `DELETE /api/children/:id`
-- Suivi des étapes de développement de l'enfant (premiers pas, premiers mots, propreté…) avec dates de validation via `GET /api/children/:id/milestones`
-- Tableau de bord par enfant affichant les données récentes de tous les modules
-
-**Espace Pédiatre :**
-- Consultation du profil pédiatre (nom complet, spécialité, téléphone) via `GET /api/pediatre/profile`
-- Modification des informations professionnelles via `PUT /api/pediatre/profile`
-
-**Intégration IA (Membre 1) :**
-- Comparaison des étapes de développement enregistrées avec les jalons OMS selon l'âge en mois
-- Génération d'un commentaire informatif et rassurant affiché sur le tableau de bord avec badge `✨ Réponse IA`
-- Endpoint : `GET /api/children/:id/milestones` → pipeline Anonymiseur → GPT-4o-mini → Validateur
-
----
-
-### Module 2 : Carnet de Croissance & Frise Chronologique
-**Responsable : Membre 2**
-
-**Espace Parent :**
-- Enregistrement des mesures de croissance (poids en kg, taille en cm, périmètre crânien en cm) avec date via `POST /api/children/:id/measurements`
-- Validation des plages : poids [0,5 – 200 kg], taille [20 – 250 cm]
-- Visualisation de l'historique des mesures sous forme de courbes interactives (Recharts) : poids/âge, taille/âge, périmètre crânien/âge
-- Suppression d'une mesure enregistrée par erreur via `DELETE /api/children/:id/measurements/:mId`
-- Frise chronologique unifiée agrégeant mesures, rendez-vous et observations sur un axe temporel via `GET /api/children/:id/timeline`
-- Filtrage de la frise par type d'événement (mesures, rendez-vous, observations)
-
-**Espace Pédiatre :**
-- Visualisation des courbes de croissance des enfants dont les fiches ont été partagées par les parents
-
-**Intégration IA (Membre 2) :**
-- Analyse de la courbe de croissance et génération d'un commentaire informatif (ex. "la croissance est régulière depuis 3 mois")
-- Endpoint : `GET /api/children/:id/growth-analysis` → pipeline Anonymiseur → GPT-4o-mini → Validateur
-
----
-
-### Module 3 : Vaccination & Agenda
-**Responsable : Membre 3**
-
-**Espace Parent :**
-- Enregistrement des vaccins reçus (nom du vaccin, date d'administration, numéro de lot optionnel) via `POST /api/children/:id/vaccinations`
-- Consultation du calendrier vaccinal de référence et calcul des prochaines échéances selon l'âge via `GET /api/children/:id/vaccination-schedule`
-- Affichage d'un indicateur d'alerte visuel sur le tableau de bord si une échéance est à moins de 30 jours
-- Gestion des rendez-vous pédiatriques (type, date/heure, praticien, notes) via `POST /api/children/:id/appointments`
-- Sections "À venir" (tri chronologique croissant) et "Historique" (tri décroissant) via `GET /api/children/:id/appointments`
-- Modification et suppression des rendez-vous futurs avec confirmation
-
-**Espace Pédiatre :**
-- Consultation du carnet vaccinal partagé par le parent pour un enfant suivi
-
-**Intégration IA (Membre 3) :**
-- Génération d'un résumé clair des prochains rappels vaccinaux et rendez-vous à venir en langage simple
-- Endpoint : `GET /api/children/:id/vaccination-summary` → pipeline Anonymiseur → GPT-4o-mini → Validateur
-
----
-
-### Module 4 : Journal des Observations & Mode Consultation
-**Responsable : Membre 4**
-
-**Espace Parent :**
-- Création d'entrées dans le journal quotidien (texte libre, catégorie parmi : Observation, Question, Symptôme, Comportement, Alimentation, Sommeil, Autre) via `POST /api/children/:id/journal`
-- Limite de 2000 caractères par entrée avec compteur et avertissement
-- Filtrage des entrées par catégorie et tri chronologique décroissant via `GET /api/children/:id/journal?category=`
-- Modification et suppression des entrées existantes
-- Mode Consultation : vue épurée permettant au parent de sélectionner individuellement les sections à afficher (mesures récentes, historique vaccinal, rendez-vous, observations) avant de montrer l'écran au pédiatre
-- Masquage des éléments de navigation et contrôles d'édition en Mode Consultation
-
-**Espace Pédiatre :**
-- Consultation des fiches partagées volontairement par les parents
-- Ajout de notes médicales de suivi sur les enfants suivis
-
-**Intégration IA (Membre 4) :**
-- Synthèse automatique des observations du journal des 30 derniers jours avant une consultation
-- Identification des thèmes récurrents et des questions importantes
-- Endpoint : `GET /api/children/:id/journal-synthesis` → pipeline Anonymiseur → GPT-4o-mini → Validateur
-
----
-
-### Module 5 : PetitGuide IA & Fiche Consultation "1 clic"
-**Responsable : Membre 5**
-
-**Espace Parent :**
-- Assistant chatbot PetitGuide : le parent saisit une question pédiatrique en texte libre (max 500 caractères) et reçoit une réponse en langage simple via `POST /api/ai/petitguide`
-- Chaque réponse du PetitGuide affiche obligatoirement une source de référence (OMS, Société Française de Pédiatrie) et un avertissement non-diagnostic
-- Si la question demande un diagnostic ou une prescription, l'assistant redirige vers le pédiatre sans répondre
-- Historique de la session de questions-réponses (non persisté en base de données)
-- Génération de la Fiche Consultation "1 clic" : assemblage des 3 dernières mesures, des observations des 30 derniers jours et des questions en attente via `POST /api/children/:id/consultation-sheet`
-- Export de la fiche au format PDF (jsPDF) ou copie dans le presse-papiers
-- Gestion des erreurs API : timeout (15s), quota dépassé, clé invalide — sans exposer les détails techniques
-
-**Espace Pédiatre :**
-- Génération d'un résumé IA de l'état de santé d'un enfant depuis la fiche partagée
-
-**Intégration IA (Membre 5 — module IA principal) :**
-- Pipeline IA partagé : Anonymiseur → LLM_Service (GPT-4o-mini) → Validateur
-- L'Anonymiseur remplace le prénom de l'enfant par un alias, convertit la date de naissance en âge en mois, supprime tous les identifiants de base de données
-- Le Validateur filtre les mots-clés médicaux dangereux (diagnostic, prescription, posologie…) et journalise toutes les réponses
-- Prompts système définis pour chaque fonctionnalité IA
-- Endpoint PetitGuide : `POST /api/ai/petitguide`
-- Endpoint Fiche : `POST /api/children/:id/consultation-sheet`
-- Endpoint PDF : `GET /api/children/:id/consultation-sheet/pdf`
+- (Membre 1) — Profil Enfant + Étapes de développement + IA jalons OMS
+- (Membre 2) — Carnet de Croissance + Frise Chronologique + IA analyse courbe
+- (Membre 3) — Vaccination + Agenda + IA résumé rappels
+- (Membre 4) — Journal des Observations + Mode Consultation + IA synthèse journal
+- (Membre 5) — PetitGuide IA + Fiche Consultation "1 clic" + Pipeline IA central
 
 ---
 
