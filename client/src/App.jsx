@@ -10,6 +10,8 @@ import DashboardPage from './pages/DashboardPage'
 import ChildFormPage from './pages/children/ChildFormPage'
 import VaccinationsPage from './pages/children/VaccinationsPage'
 import AppointmentsPage from './pages/children/AppointmentsPage'
+import VaccinationRedirect from './pages/children/VaccinationRedirect'
+import AppointmentRedirect from './pages/children/AppointmentRedirect'
 import PediatreDashboardPage from './pages/pediatre/PediatreDashboardPage'
 import PediatreProfilePage from './pages/pediatre/PediatreProfilePage'
 import LoadingSpinner from './components/ui/LoadingSpinner'
@@ -57,8 +59,8 @@ function AppRoutes() {
         <Route path="/children/:childId/vaccinations" element={<VaccinationsPage />} />
         <Route path="/children/:childId/appointments" element={<AppointmentsPage />} />
         <Route path="/growth" element={<PlaceholderPage title="Carnet de Croissance" />} />
-        <Route path="/vaccination" element={<PlaceholderPage title="Carnet de Vaccination" />} />
-        <Route path="/agenda" element={<PlaceholderPage title="Agenda" />} />
+        <Route path="/vaccination" element={<VaccinationRedirect />} />
+        <Route path="/agenda" element={<AppointmentRedirect />} />
         <Route path="/journal" element={<PlaceholderPage title="Journal des Observations" />} />
         <Route path="/timeline" element={<PlaceholderPage title="Frise Chronologique" />} />
         <Route path="/consultation" element={<PlaceholderPage title="Mode Consultation" />} />
