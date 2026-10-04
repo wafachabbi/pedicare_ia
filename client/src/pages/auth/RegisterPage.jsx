@@ -45,70 +45,71 @@ export default function RegisterPage() {
     }
   }
 
+  const inputClass = (hasError) =>
+    `w-full px-4 py-3 rounded-2xl border-2 ${hasError ? 'border-red-400' : 'border-gray-100 dark:border-slate-600'} bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-mint-400 transition-colors`
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-mint-50 via-white to-sky-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 px-4 py-8">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
-        <div className="glass-card p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-mint-500">🏥 PediCare AI</h1>
-            <p className="text-gray-500 dark:text-gray-400 mt-2">Créez votre compte</p>
-          </div>
+      <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="w-full max-w-md">
 
-          {/* Sélection du rôle */}
-          <div className="flex gap-3 mb-6">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-mint-400 to-sky-400 text-3xl shadow-lg shadow-mint-200 dark:shadow-mint-900/30 mb-4">
+            🏥
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">PediCare AI</h1>
+          <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">Créez votre espace</p>
+        </div>
+
+        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden">
+
+          {/* Sélecteur rôle */}
+          <div className="grid grid-cols-2">
             {[
               { value: 'parent', icon: '👨‍👩‍👧', label: 'Parent' },
               { value: 'pediatre', icon: '👨‍⚕️', label: 'Pédiatre' }
             ].map(({ value, icon, label }) => (
-              <button
-                key={value}
-                type="button"
-                onClick={() => setRole(value)}
-                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border-2 text-sm font-medium transition-all ${
+              <button key={value} type="button" onClick={() => setRole(value)}
+                className={`flex items-center justify-center gap-2 py-4 text-sm font-semibold transition-all border-b-2 ${
                   role === value
-                    ? 'border-mint-500 bg-mint-50 dark:bg-mint-900/20 text-mint-700 dark:text-mint-400'
-                    : 'border-gray-200 dark:border-slate-600 text-gray-500 hover:border-gray-300'
-                }`}
-              >
-                <span>{icon}</span> {label}
+                    ? 'border-mint-500 text-mint-600 dark:text-mint-400 bg-mint-50 dark:bg-mint-900/20'
+                    : 'border-gray-100 dark:border-slate-700 text-gray-400 hover:text-gray-600 bg-white dark:bg-slate-800'
+                }`}>
+                <span className="text-lg">{icon}</span> {label}
               </button>
             ))}
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          <form onSubmit={handleSubmit} className="p-8 space-y-4" noValidate>
+
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Adresse email</label>
+              <label htmlFor="email" className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Email</label>
               <input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)}
-                aria-invalid={!!errors.email} aria-describedby={errors.email ? 'email-error' : undefined}
-                className={`w-full px-4 py-2.5 rounded-xl border ${errors.email ? 'border-red-400' : 'border-gray-200 dark:border-slate-600'} bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-mint-400 transition`}
-                placeholder="exemple@email.com" />
-              {errors.email && <p id="email-error" role="alert" className="mt-1 text-xs text-red-500">{errors.email}</p>}
+                aria-invalid={!!errors.email} className={inputClass(errors.email)} placeholder="exemple@email.com" />
+              {errors.email && <p role="alert" className="mt-1 text-xs text-red-500">{errors.email}</p>}
             </div>
 
             {/* Champs pédiatre */}
             <AnimatePresence>
               {role === 'pediatre' && (
-                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-4 overflow-hidden">
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }} className="space-y-4 overflow-hidden">
                   <div>
-                    <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom complet *</label>
+                    <label htmlFor="fullName" className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Nom complet *</label>
                     <input id="fullName" type="text" value={fullName} onChange={e => setFullName(e.target.value)}
-                      aria-invalid={!!errors.fullName}
-                      className={`w-full px-4 py-2.5 rounded-xl border ${errors.fullName ? 'border-red-400' : 'border-gray-200 dark:border-slate-600'} bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-mint-400 transition`}
-                      placeholder="Dr. [Prénom] [Nom]" />
+                      aria-invalid={!!errors.fullName} className={inputClass(errors.fullName)} placeholder="Dr. Prénom Nom" />
                     {errors.fullName && <p role="alert" className="mt-1 text-xs text-red-500">{errors.fullName}</p>}
                   </div>
                   <div>
-                    <label htmlFor="speciality" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Spécialité</label>
+                    <label htmlFor="speciality" className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Spécialité</label>
                     <input id="speciality" type="text" value={speciality} onChange={e => setSpeciality(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-mint-400 transition"
-                      placeholder="Pédiatrie générale" />
+                      className={inputClass(false)} placeholder="Pédiatrie générale" />
                   </div>
                   <div>
-                    <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Téléphone</label>
+                    <label htmlFor="phone" className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Téléphone</label>
                     <input id="phone" type="tel" value={phone} onChange={e => setPhone(e.target.value)}
-                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-mint-400 transition"
-                      placeholder="+216 xx xxx xxx" />
+                      className={inputClass(false)} placeholder="+216 xx xxx xxx" />
                   </div>
                 </motion.div>
               )}
@@ -116,36 +117,36 @@ export default function RegisterPage() {
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Mot de passe</label>
+              <label htmlFor="password" className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Mot de passe</label>
               <input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)}
-                aria-invalid={!!errors.password}
-                className={`w-full px-4 py-2.5 rounded-xl border ${errors.password ? 'border-red-400' : 'border-gray-200 dark:border-slate-600'} bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-mint-400 transition`}
-                placeholder="••••••••" />
+                aria-invalid={!!errors.password} className={inputClass(errors.password)} placeholder="••••••••" />
               {errors.password && <p role="alert" className="mt-1 text-xs text-red-500">{errors.password}</p>}
             </div>
 
             {/* Confirm */}
             <div>
-              <label htmlFor="confirm" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Confirmer le mot de passe</label>
+              <label htmlFor="confirm" className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Confirmer le mot de passe</label>
               <input id="confirm" type="password" value={confirm} onChange={e => setConfirm(e.target.value)}
-                aria-invalid={!!errors.confirm}
-                className={`w-full px-4 py-2.5 rounded-xl border ${errors.confirm ? 'border-red-400' : 'border-gray-200 dark:border-slate-600'} bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-mint-400 transition`}
-                placeholder="••••••••" />
+                aria-invalid={!!errors.confirm} className={inputClass(errors.confirm)} placeholder="••••••••" />
               {errors.confirm && <p role="alert" className="mt-1 text-xs text-red-500">{errors.confirm}</p>}
             </div>
 
-            {errors.global && <p role="alert" className="text-sm text-red-500">{errors.global}</p>}
+            {errors.global && (
+              <div role="alert" className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl text-red-600 dark:text-red-400 text-sm">
+                <span>⚠️</span> {errors.global}
+              </div>
+            )}
 
             <button type="submit" disabled={loading}
-              className="w-full py-3 px-4 bg-mint-500 hover:bg-mint-400 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-mint-400 mt-2">
-              {loading ? 'Création...' : 'Créer mon compte'}
+              className="w-full py-3.5 bg-gradient-to-r from-mint-500 to-sky-400 disabled:opacity-50 text-white font-semibold rounded-2xl hover:shadow-lg hover:scale-[1.02] transition-all focus:outline-none focus:ring-2 focus:ring-mint-400 mt-2">
+              {loading ? 'Création...' : 'Créer mon compte →'}
             </button>
-          </form>
 
-          <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
-            Déjà un compte ?{' '}
-            <Link to="/login" className="text-mint-500 hover:text-mint-400 font-medium">Se connecter</Link>
-          </p>
+            <p className="text-center text-sm text-gray-400 dark:text-gray-500">
+              Déjà un compte ?{' '}
+              <Link to="/login" className="text-mint-500 hover:text-mint-400 font-semibold">Se connecter</Link>
+            </p>
+          </form>
         </div>
       </motion.div>
     </div>

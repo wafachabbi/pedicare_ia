@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useAuth } from '../../hooks/useAuth'
 import api from '../../services/api'
-import GlassCard from '../../components/ui/GlassCard'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 
 export default function PediatreProfilePage() {
@@ -36,52 +35,70 @@ export default function PediatreProfilePage() {
     }
   }
 
+  const inputClass = `w-full px-4 py-3 rounded-2xl border-2 border-gray-100 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-sky-400 transition-colors`
+
   return (
-    <div className="max-w-lg mx-auto">
+    <div className="max-w-lg mx-auto p-2">
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-        <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6">👨‍⚕️ Mon profil</h1>
 
-        <GlassCard className="p-6">
-          {/* Email (non modifiable) */}
-          <div className="mb-6 p-4 bg-gray-50 dark:bg-slate-800 rounded-xl">
-            <p className="text-xs text-gray-400 mb-1">Adresse email</p>
-            <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{user?.email}</p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Header */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-sky-500 to-violet-500 p-7 mb-6 shadow-xl shadow-sky-200 dark:shadow-sky-900/30">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4" />
+          <div className="relative flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center text-2xl">
+              👨‍⚕️
+            </div>
             <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nom complet</label>
+              <h1 className="text-xl font-bold text-white">Mon profil</h1>
+              <p className="text-sky-100 text-sm">{user?.email}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden">
+          <div className="bg-gradient-to-r from-sky-500 to-violet-500 px-6 py-4">
+            <h2 className="text-white font-semibold">Informations professionnelles</h2>
+          </div>
+          <form onSubmit={handleSubmit} className="p-6 space-y-5">
+
+            <div>
+              <label htmlFor="fullName" className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Nom complet</label>
               <input id="fullName" type="text" value={form.fullName}
                 onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-400 transition"
-                placeholder="Dr. Prénom Nom" />
+                className={inputClass} placeholder="Dr. Prénom Nom" />
             </div>
 
             <div>
-              <label htmlFor="speciality" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Spécialité</label>
+              <label htmlFor="speciality" className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Spécialité</label>
               <input id="speciality" type="text" value={form.speciality}
                 onChange={e => setForm(f => ({ ...f, speciality: e.target.value }))}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-400 transition"
-                placeholder="Pédiatrie générale" />
+                className={inputClass} placeholder="Pédiatrie générale" />
             </div>
 
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Téléphone</label>
+              <label htmlFor="phone" className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Téléphone</label>
               <input id="phone" type="tel" value={form.phone}
                 onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
-                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-sky-400 transition"
-                placeholder="+216 xx xxx xxx" />
+                className={inputClass} placeholder="+216 xx xxx xxx" />
             </div>
 
-            {error && <p role="alert" className="text-sm text-red-500">{error}</p>}
-            {saved && <p role="status" className="text-sm text-mint-500">✅ Profil mis à jour avec succès</p>}
+            {error && (
+              <div role="alert" className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl text-red-600 dark:text-red-400 text-sm">
+                <span>⚠️</span> {error}
+              </div>
+            )}
+            {saved && (
+              <div role="status" className="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl text-emerald-600 dark:text-emerald-400 text-sm">
+                <span>✅</span> Profil mis à jour avec succès
+              </div>
+            )}
 
             <button type="submit" disabled={loading}
-              className="w-full py-3 bg-sky-500 hover:bg-sky-400 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-sky-400">
-              {loading ? <LoadingSpinner size="sm" color="sky" /> : 'Enregistrer'}
+              className="w-full py-3.5 bg-gradient-to-r from-sky-500 to-violet-500 disabled:opacity-50 text-white font-semibold rounded-2xl hover:shadow-lg hover:scale-[1.02] transition-all focus:outline-none focus:ring-2 focus:ring-sky-400">
+              {loading ? <LoadingSpinner size="sm" color="sky" /> : 'Enregistrer les modifications'}
             </button>
           </form>
-        </GlassCard>
+        </div>
       </motion.div>
     </div>
   )
