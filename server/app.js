@@ -11,6 +11,8 @@ app.use(express.json())
 // Routes (seront ajoutées au fur et à mesure)
 app.use('/api/auth', require('./routes/auth.routes'))
 app.use('/api/children', require('./routes/children.routes'))
+app.use('/api/children/:childId/vaccinations', require('./routes/vaccinations.routes'))
+app.use('/api/children/:childId/appointments', require('./routes/appointments.routes'))
 app.use('/api/pediatre', require('./routes/pediatre.routes'))
 
 // Health check

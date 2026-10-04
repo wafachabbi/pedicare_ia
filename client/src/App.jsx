@@ -8,6 +8,8 @@ import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import ChildFormPage from './pages/children/ChildFormPage'
+import VaccinationsPage from './pages/children/VaccinationsPage'
+import AppointmentsPage from './pages/children/AppointmentsPage'
 import PediatreDashboardPage from './pages/pediatre/PediatreDashboardPage'
 import PediatreProfilePage from './pages/pediatre/PediatreProfilePage'
 import LoadingSpinner from './components/ui/LoadingSpinner'
@@ -52,6 +54,8 @@ function AppRoutes() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/children/new" element={<ChildFormPage />} />
         <Route path="/children/:id/edit" element={<ChildFormPage />} />
+        <Route path="/children/:childId/vaccinations" element={<VaccinationsPage />} />
+        <Route path="/children/:childId/appointments" element={<AppointmentsPage />} />
         <Route path="/growth" element={<PlaceholderPage title="Carnet de Croissance" />} />
         <Route path="/vaccination" element={<PlaceholderPage title="Carnet de Vaccination" />} />
         <Route path="/agenda" element={<PlaceholderPage title="Agenda" />} />
