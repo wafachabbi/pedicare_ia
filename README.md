@@ -25,11 +25,11 @@ Mini-projet — IA for Software Engineering — ESPRIT A.U 2026-2027
 
 **Travail de groupe ✅** — Authentification (register / login / JWT) + Profil Enfant (CRUD)
 
-- (Membre 1) — CRUD Étapes de développement + CRUD Allergies/Antécédents médicaux + IA jalons OMS
-- (Membre 2) — CRUD Mesures de croissance + CRUD Documents médicaux (upload ordonnances/résultats) + IA analyse courbe
-- (Membre 3) — CRUD Vaccinations + CRUD Rendez-vous + IA résumé rappels
-- (Membre 4) — CRUD Journal des observations + CRUD Contacts médicaux (pédiatre, spécialistes) + IA synthèse journal
-- (Membre 5) — CRUD Notes pédiatre (espace professionnel) + CRUD Questions pour consultation + PetitGuide IA + Fiche Consultation "1 clic"
+- (Membre 1) Molka — CRUD Étapes de développement + CRUD Allergies/Antécédents médicaux + IA jalons OMS
+- (Membre 2) Montassar — CRUD Mesures de croissance + CRUD Documents médicaux (upload ordonnances/résultats) + IA analyse courbe
+- (Membre 3) Wafa — CRUD Vaccinations + CRUD Rendez-vous + IA résumé rappels
+- (Membre 4) Rahma — CRUD Journal des observations + CRUD Contacts médicaux (pédiatre, spécialistes) + IA synthèse journal
+- (Membre 5) Arij — CRUD Notes pédiatre (espace professionnel) + CRUD Questions pour consultation + PetitGuide IA + Fiche Consultation "1 clic"
 
 ---
 
