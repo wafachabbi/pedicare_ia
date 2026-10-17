@@ -21,6 +21,16 @@ const vaccinationSchema = new mongoose.Schema({
     type: String,
     trim: true,
     maxlength: [50, 'Numéro de lot trop long']
+  },
+  pediatreId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
+  practitioner: {
+    type: String,
+    trim: true,
+    maxlength: [100, 'Nom du praticien trop long']
   }
 }, { timestamps: true })
 

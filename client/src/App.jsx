@@ -8,8 +8,13 @@ import LoginPage from './pages/auth/LoginPage'
 import RegisterPage from './pages/auth/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import ChildFormPage from './pages/children/ChildFormPage'
+import VaccinationsPage from './pages/children/VaccinationsPage'
+import AppointmentsPage from './pages/children/AppointmentsPage'
+import VaccinationRedirect from './pages/children/VaccinationRedirect'
+import AppointmentRedirect from './pages/children/AppointmentRedirect'
 import PediatreDashboardPage from './pages/pediatre/PediatreDashboardPage'
 import PediatreProfilePage from './pages/pediatre/PediatreProfilePage'
+import PediatreVaccinationsPage from './pages/pediatre/PediatreVaccinationsPage'
 import LoadingSpinner from './components/ui/LoadingSpinner'
 
 const PlaceholderPage = ({ title }) => (
@@ -52,9 +57,11 @@ function AppRoutes() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/children/new" element={<ChildFormPage />} />
         <Route path="/children/:id/edit" element={<ChildFormPage />} />
+        <Route path="/children/:childId/vaccinations" element={<VaccinationsPage />} />
+        <Route path="/children/:childId/appointments" element={<AppointmentsPage />} />
         <Route path="/growth" element={<PlaceholderPage title="Carnet de Croissance" />} />
-        <Route path="/vaccination" element={<PlaceholderPage title="Carnet de Vaccination" />} />
-        <Route path="/agenda" element={<PlaceholderPage title="Agenda" />} />
+        <Route path="/vaccination" element={<VaccinationRedirect />} />
+        <Route path="/agenda" element={<AppointmentRedirect />} />
         <Route path="/journal" element={<PlaceholderPage title="Journal des Observations" />} />
         <Route path="/timeline" element={<PlaceholderPage title="Frise Chronologique" />} />
         <Route path="/consultation" element={<PlaceholderPage title="Mode Consultation" />} />
@@ -67,7 +74,7 @@ function AppRoutes() {
         <Route path="/pediatre/profile" element={<PediatreProfilePage />} />
         <Route path="/pediatre/fiches" element={<PlaceholderPage title="Fiches partagées" />} />
         <Route path="/pediatre/croissance" element={<PlaceholderPage title="Courbes de croissance" />} />
-        <Route path="/pediatre/vaccinations" element={<PlaceholderPage title="Suivi vaccinal" />} />
+        <Route path="/pediatre/vaccinations" element={<PediatreVaccinationsPage />} />
         <Route path="/pediatre/notes" element={<PlaceholderPage title="Mes notes" />} />
       </Route>
 
