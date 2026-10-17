@@ -6,10 +6,14 @@ export default {
     extend: {
       colors: {
         mint: {
-          50: '#f0fdf4',
-          100: '#dcfce7',
-          400: '#4ade80',
-          500: '#22c55e',
+          50: '#eff6ff',
+          100: '#dbeafe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#2563eb',
+          700: '#1d4ed8',
+          900: '#1e3a8a',
         },
         sky: {
           400: '#38bdf8',

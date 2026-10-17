@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { appointmentsService } from '../../services/appointments.service'
+import { appointmentsService, pediatresService } from '../../services/appointments.service'
 import ConfirmModal from '../../components/ui/ConfirmModal'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 
-const emptyForm = { type: 'consultation', dateTime: '', practitioner: '', notes: '' }
+const emptyForm = { type: 'consultation', dateTime: '', practitioner: '', notes: '', pediatreId: '' }
 
 const TYPE_CONFIG = {
   consultation: { label: 'Consultation', icon: '🩺', color: 'from-sky-500 to-blue-400', bg: 'bg-sky-50 dark:bg-sky-900/20', text: 'text-sky-600 dark:text-sky-400' },
@@ -15,6 +15,7 @@ const TYPE_CONFIG = {
 export default function AppointmentsPage() {
   const { childId } = useParams()
   const [appointments, setAppointments] = useState([])
+  const [pediatres, setPediatres] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
@@ -27,8 +28,12 @@ export default function AppointmentsPage() {
   const load = async () => {
     try {
       setLoading(true)
-      const res = await appointmentsService.getAll(childId)
-      setAppointments(res.data.data)
+      const [apptRes, pedRes] = await Promise.all([
+        appointmentsService.getAll(childId),
+        pediatresService.list()
+      ])
+      setAppointments(apptRes.data.data)
+      setPediatres(pedRes.data.data)
     } catch {
       setError('Erreur lors du chargement')
     } finally {
@@ -155,9 +160,25 @@ export default function AppointmentsPage() {
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Praticien</label>
-                    <input value={form.practitioner} onChange={e => setForm(f => ({ ...f, practitioner: e.target.value }))}
+                    <select
+                      value={form.pediatreId}
+                      onChange={e => {
+                        const ped = pediatres.find(p => p._id === e.target.value)
+                        setForm(f => ({
+                          ...f,
+                          pediatreId: e.target.value,
+                          practitioner: ped ? (ped.fullName || ped.email) : ''
+                        }))
+                      }}
                       className="w-full px-4 py-3 rounded-2xl border-2 border-gray-100 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-sky-400 transition-colors"
-                      placeholder="Dr. [Nom]" />
+                    >
+                      <option value="">— Sélectionner un pédiatre —</option>
+                      {pediatres.map(p => (
+                        <option key={p._id} value={p._id}>
+                          {p.fullName ? `Dr. ${p.fullName}` : p.email}{p.speciality ? ` — ${p.speciality}` : ''}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div className="sm:col-span-2">
                     <label className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Notes</label>

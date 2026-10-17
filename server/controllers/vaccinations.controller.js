@@ -24,11 +24,11 @@ const createVaccination = async (req, res, next) => {
     if (!await ownsChild(req.params.childId, req.user.id)) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Enfant introuvable' } })
     }
-    const { vaccineName, administeredAt, lotNumber } = req.body
+    const { vaccineName, administeredAt, lotNumber, pediatreId, practitioner } = req.body
     if (!vaccineName || !administeredAt) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Nom du vaccin et date requis' } })
     }
-    const vaccination = await Vaccination.create({ childId: req.params.childId, vaccineName, administeredAt, lotNumber })
+    const vaccination = await Vaccination.create({ childId: req.params.childId, vaccineName, administeredAt, lotNumber, pediatreId: pediatreId || null, practitioner: practitioner || '' })
     res.status(201).json({ success: true, data: vaccination })
   } catch (err) { next(err) }
 }

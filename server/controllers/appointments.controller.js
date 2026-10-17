@@ -23,13 +23,13 @@ const createAppointment = async (req, res, next) => {
     if (!await ownsChild(req.params.childId, req.user.id)) {
       return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Enfant introuvable' } })
     }
-    const { type, dateTime, practitioner, notes } = req.body
+    const { type, dateTime, practitioner, notes, pediatreId } = req.body
     if (!type || !dateTime) {
       return res.status(400).json({ success: false, error: { code: 'VALIDATION_ERROR', message: 'Type et date/heure requis' } })
     }
     // Statut auto selon la date
     const status = new Date(dateTime) >= new Date() ? 'upcoming' : 'past'
-    const appointment = await Appointment.create({ childId: req.params.childId, type, dateTime, practitioner, notes, status })
+    const appointment = await Appointment.create({ childId: req.params.childId, type, dateTime, practitioner, notes, status, pediatreId: pediatreId || null })
     res.status(201).json({ success: true, data: appointment })
   } catch (err) { next(err) }
 }

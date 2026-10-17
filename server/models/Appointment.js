@@ -21,6 +21,11 @@ const appointmentSchema = new mongoose.Schema({
     trim: true,
     maxlength: [100, 'Nom du praticien trop long']
   },
+  pediatreId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
   notes: {
     type: String,
     maxlength: [1000, 'Notes trop longues']

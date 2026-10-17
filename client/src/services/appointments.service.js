@@ -6,3 +6,7 @@ export const appointmentsService = {
   update: (childId, id, data) => api.put(`/children/${childId}/appointments/${id}`, data),
   delete: (childId, id) => api.delete(`/children/${childId}/appointments/${id}`)
 }
+
+export const pediatresService = {
+  list: () => api.get('/pediatre/list')
+}

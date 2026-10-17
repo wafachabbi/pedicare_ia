@@ -14,6 +14,7 @@ import VaccinationRedirect from './pages/children/VaccinationRedirect'
 import AppointmentRedirect from './pages/children/AppointmentRedirect'
 import PediatreDashboardPage from './pages/pediatre/PediatreDashboardPage'
 import PediatreProfilePage from './pages/pediatre/PediatreProfilePage'
+import PediatreVaccinationsPage from './pages/pediatre/PediatreVaccinationsPage'
 import LoadingSpinner from './components/ui/LoadingSpinner'
 
 const PlaceholderPage = ({ title }) => (
@@ -73,7 +74,7 @@ function AppRoutes() {
         <Route path="/pediatre/profile" element={<PediatreProfilePage />} />
         <Route path="/pediatre/fiches" element={<PlaceholderPage title="Fiches partagées" />} />
         <Route path="/pediatre/croissance" element={<PlaceholderPage title="Courbes de croissance" />} />
-        <Route path="/pediatre/vaccinations" element={<PlaceholderPage title="Suivi vaccinal" />} />
+        <Route path="/pediatre/vaccinations" element={<PediatreVaccinationsPage />} />
         <Route path="/pediatre/notes" element={<PlaceholderPage title="Mes notes" />} />
       </Route>
 
