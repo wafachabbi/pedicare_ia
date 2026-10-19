@@ -29,7 +29,7 @@ Mini-projet — IA for Software Engineering — ESPRIT A.U 2026-2027
 - (Membre 2) Montassar — CRUD Mesures de croissance + CRUD Documents médicaux (upload ordonnances/résultats) + IA analyse courbe
 - (Membre 3) Wafa — CRUD Vaccinations + CRUD Rendez-vous + IA résumé rappels
 - (Membre 4) Rahma — CRUD Journal des observations + CRUD Contacts médicaux (pédiatre, spécialistes) + IA synthèse journal
-- (Membre 5) Arij — CRUD Notes pédiatre (espace professionnel) + CRUD Questions pour consultation + PetitGuide IA + Fiche Consultation "1 clic"
+- (Membre 5) Arij — CRUD Notes pédiatre (espace professionnel) + CRUD Questions pour consultation + Fiche Consultation "1 clic"
 
 ---
 
