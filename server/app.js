@@ -14,6 +14,7 @@ app.use('/api/children', require('./routes/children.routes'))
 app.use('/api/children/:childId/vaccinations', require('./routes/vaccinations.routes'))
 app.use('/api/children/:childId/appointments', require('./routes/appointments.routes'))
 app.use('/api/pediatre', require('./routes/pediatre.routes'))
+app.use('/api/ai', require('./routes/ai.routes'))
 
 // Health check
 app.get('/api/health', (req, res) => {
