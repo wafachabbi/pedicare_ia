@@ -15,6 +15,7 @@ import AppointmentRedirect from './pages/children/AppointmentRedirect'
 import PediatreDashboardPage from './pages/pediatre/PediatreDashboardPage'
 import PediatreProfilePage from './pages/pediatre/PediatreProfilePage'
 import PediatreVaccinationsPage from './pages/pediatre/PediatreVaccinationsPage'
+import PetitGuidePage from './pages/children/PetitGuidePage'
 import LoadingSpinner from './components/ui/LoadingSpinner'
 
 const PlaceholderPage = ({ title }) => (
@@ -65,7 +66,7 @@ function AppRoutes() {
         <Route path="/journal" element={<PlaceholderPage title="Journal des Observations" />} />
         <Route path="/timeline" element={<PlaceholderPage title="Frise Chronologique" />} />
         <Route path="/consultation" element={<PlaceholderPage title="Mode Consultation" />} />
-        <Route path="/petitguide" element={<PlaceholderPage title="PetitGuide IA" />} />
+        <Route path="/petitguide" element={<PetitGuidePage />} />
       </Route>
 
       {/* Espace Pédiatre */}
