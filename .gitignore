@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Environment variables (NEVER commit these)
+.env
+server/.env
+
+# Build output
+client/dist/
+
+# Kiro IDE files
+.kiro/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
