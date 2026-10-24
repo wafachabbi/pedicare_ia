@@ -15,6 +15,7 @@ import AppointmentRedirect from './pages/children/AppointmentRedirect'
 import PediatreDashboardPage from './pages/pediatre/PediatreDashboardPage'
 import PediatreProfilePage from './pages/pediatre/PediatreProfilePage'
 import PediatreVaccinationsPage from './pages/pediatre/PediatreVaccinationsPage'
+import PediatreNotesPage from './pages/pediatre/PediatreNotesPage'
 import PetitGuidePage from './pages/children/PetitGuidePage'
 import MeasurementsPage from './pages/children/MeasurementsPage'
 import DocumentsPage from './pages/children/DocumentsPage'
@@ -85,7 +86,7 @@ function AppRoutes() {
         <Route path="/pediatre/fiches" element={<PlaceholderPage title="Fiches partagées" />} />
         <Route path="/pediatre/croissance" element={<PlaceholderPage title="Courbes de croissance" />} />
         <Route path="/pediatre/vaccinations" element={<PediatreVaccinationsPage />} />
-        <Route path="/pediatre/notes" element={<PlaceholderPage title="Mes notes" />} />
+        <Route path="/pediatre/notes" element={<PediatreNotesPage />} />
       </Route>
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
