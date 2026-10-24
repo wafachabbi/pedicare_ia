@@ -22,6 +22,7 @@ import DocumentsPage from './pages/children/DocumentsPage'
 import MeasurementRedirect from './pages/children/MeasurementRedirect'
 import DocumentRedirect from './pages/children/DocumentRedirect'
 import AdsAdminPage from './pages/AdsAdminPage'
+import ConsultationPage from './pages/consultation/ConsultationPage'
 import LoadingSpinner from './components/ui/LoadingSpinner'
 
 const PlaceholderPage = ({ title }) => (
@@ -74,7 +75,7 @@ function AppRoutes() {
         <Route path="/agenda" element={<AppointmentRedirect />} />
         <Route path="/journal" element={<PlaceholderPage title="Journal des Observations" />} />
         <Route path="/timeline" element={<PlaceholderPage title="Frise Chronologique" />} />
-        <Route path="/consultation" element={<PlaceholderPage title="Mode Consultation" />} />
+        <Route path="/consultation" element={<ConsultationPage />} />
         <Route path="/petitguide" element={<PetitGuidePage />} />
         <Route path="/ads/admin" element={<AdsAdminPage />} />
       </Route>
