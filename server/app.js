@@ -22,6 +22,7 @@ app.use('/api/children/:childId/documents', require('./routes/documents.routes')
 app.use('/api/pediatre', require('./routes/pediatre.routes'))
 app.use('/api/notes', require('./routes/notes.routes'))
 app.use('/api/ai', require('./routes/ai.routes'))
+app.use('/api/consultation-sheets', require('./routes/consultationSheet.routes'))
 app.use('/api/ads', require('./routes/ads.routes'))
 
 // Health check
