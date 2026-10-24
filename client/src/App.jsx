@@ -16,6 +16,7 @@ import PediatreDashboardPage from './pages/pediatre/PediatreDashboardPage'
 import PediatreProfilePage from './pages/pediatre/PediatreProfilePage'
 import PediatreVaccinationsPage from './pages/pediatre/PediatreVaccinationsPage'
 import PediatreNotesPage from './pages/pediatre/PediatreNotesPage'
+import PediatreSheetsPage from './pages/pediatre/PediatreSheetsPage'
 import PetitGuidePage from './pages/children/PetitGuidePage'
 import MeasurementsPage from './pages/children/MeasurementsPage'
 import DocumentsPage from './pages/children/DocumentsPage'
@@ -84,7 +85,7 @@ function AppRoutes() {
       <Route element={<PrivateRoute><RoleRoute role="pediatre"><PediatreShell /></RoleRoute></PrivateRoute>}>
         <Route path="/pediatre/dashboard" element={<PediatreDashboardPage />} />
         <Route path="/pediatre/profile" element={<PediatreProfilePage />} />
-        <Route path="/pediatre/fiches" element={<PlaceholderPage title="Fiches partagées" />} />
+        <Route path="/pediatre/fiches" element={<PediatreSheetsPage />} />
         <Route path="/pediatre/croissance" element={<PlaceholderPage title="Courbes de croissance" />} />
         <Route path="/pediatre/vaccinations" element={<PediatreVaccinationsPage />} />
         <Route path="/pediatre/notes" element={<PediatreNotesPage />} />

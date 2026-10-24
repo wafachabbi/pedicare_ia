@@ -3,11 +3,13 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useChild } from '../../hooks/useChild'
 import { questionsService } from '../../services/questions.service'
 import { appointmentsService } from '../../services/appointments.service'
+import { consultationSheetService } from '../../services/consultationSheet.service'
 import ConfirmModal from '../../components/ui/ConfirmModal'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 import ErrorMessage from '../../components/ui/ErrorMessage'
 import GlassCard from '../../components/ui/GlassCard'
 import AIBadge from '../../components/ui/AIBadge'
+import ConsultationSheetView from '../../components/consultation/ConsultationSheetView'
 
 const MAX_LENGTH = 500
 
@@ -140,11 +142,11 @@ export default function ConsultationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-mint-50 via-white to-emerald-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-mint-50 via-white to-sky-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 p-6">
       <div className="max-w-3xl mx-auto">
 
         {/* Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-mint-500 to-emerald-400 p-8 mb-8 shadow-xl shadow-mint-100 dark:shadow-mint-900/30">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-sky-500 to-violet-500 p-8 mb-8 shadow-xl shadow-mint-100 dark:shadow-mint-900/30">
           <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full translate-y-1/2 -translate-x-1/2" />
           <div className="relative">
@@ -169,7 +171,7 @@ export default function ConsultationPage() {
             <QuestionFields form={form} setForm={setForm} appointments={appointments} />
             {formError && <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-xl">{formError}</p>}
             <button type="submit" disabled={saving}
-              className="w-full py-3 bg-gradient-to-r from-mint-500 to-emerald-400 disabled:opacity-50 text-white font-semibold rounded-2xl hover:shadow-lg hover:scale-[1.02] transition-all">
+              className="w-full py-3 bg-gradient-to-r from-sky-500 to-violet-500 disabled:opacity-50 text-white font-semibold rounded-2xl hover:shadow-lg hover:scale-[1.02] transition-all">
               {saving ? 'Ajout...' : '+ Ajouter'}
             </button>
           </form>
@@ -222,14 +224,8 @@ export default function ConsultationPage() {
           )}
         </div>
 
-        {/* Fiche consultation (partie C) */}
-        <GlassCard className="p-6">
-          <div className="flex items-center gap-3 mb-2 flex-wrap">
-            <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">📋 Fiche consultation 1 clic</h2>
-            <AIBadge />
-          </div>
-          <p className="text-sm text-gray-400 dark:text-gray-500">Bientôt disponible</p>
-        </GlassCard>
+        {/* Fiche consultation 1 clic */}
+        <ConsultationSheetSection childId={childId} childName={activeChild.firstName} />
       </div>
 
       <ConfirmModal
@@ -339,7 +335,7 @@ function QuestionCard({ q, index, appointments, editing, onEdit, onCancelEdit, o
           {formError && <p className="text-sm text-red-500 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-xl">{formError}</p>}
           <div className="flex gap-3">
             <button type="submit" disabled={saving}
-              className="flex-1 py-2.5 bg-gradient-to-r from-mint-500 to-emerald-400 disabled:opacity-50 text-white font-semibold rounded-2xl hover:shadow-lg transition-all text-sm">
+              className="flex-1 py-2.5 bg-gradient-to-r from-sky-500 to-violet-500 disabled:opacity-50 text-white font-semibold rounded-2xl hover:shadow-lg transition-all text-sm">
               {saving ? 'Enregistrement...' : 'Enregistrer'}
             </button>
             <button type="button" onClick={onCancelEdit}
@@ -389,5 +385,139 @@ function QuestionCard({ q, index, appointments, editing, onEdit, onCancelEdit, o
         </div>
       )}
     </motion.div>
+  )
+}
+
+// Génération + historique des fiches consultation (indépendant de la section questions)
+function ConsultationSheetSection({ childId, childName }) {
+  const [sheets, setSheets] = useState([])
+  const [selectedId, setSelectedId] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [generating, setGenerating] = useState(false)
+  const [genError, setGenError] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState(null)
+
+  const loadSheets = async () => {
+    try {
+      setLoading(true)
+      setError('')
+      const res = await consultationSheetService.getByChild(childId)
+      setSheets(res.data.data)
+      setSelectedId(null)
+    } catch {
+      setError("Erreur lors du chargement de l'historique")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => { if (childId) loadSheets() }, [childId])
+
+  const handleGenerate = async () => {
+    setGenerating(true)
+    setGenError('')
+    try {
+      const res = await consultationSheetService.generate(childId)
+      const sheet = res.data.data
+      // Une fiche renvoyée depuis le cache existe déjà dans l'historique : on la remonte sans doublon
+      setSheets(list => [sheet, ...list.filter(s => s._id !== sheet._id)])
+      setSelectedId(sheet._id)
+    } catch (err) {
+      setGenError(err.response?.status === 502
+        ? "La génération de la fiche par l'IA a échoué. Vérifiez votre connexion puis réessayez."
+        : err.response?.data?.error?.message || 'Erreur lors de la génération de la fiche')
+    } finally {
+      setGenerating(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    try {
+      await consultationSheetService.delete(deleteTarget)
+      setSheets(list => list.filter(s => s._id !== deleteTarget))
+      if (selectedId === deleteTarget) setSelectedId(null)
+    } catch {
+      setError('Erreur lors de la suppression')
+    } finally {
+      setDeleteTarget(null)
+    }
+  }
+
+  const selected = sheets.find(s => s._id === selectedId)
+
+  return (
+    <div className="space-y-4">
+      <GlassCard className="p-6">
+        <div className="flex items-center gap-3 mb-2 flex-wrap">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">📋 Fiche consultation 1 clic</h2>
+          <AIBadge />
+        </div>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+          Synthèse de vos questions en attente, des vaccinations et des dernières mesures, partagée avec le pédiatre du prochain rendez-vous.
+        </p>
+        <button onClick={handleGenerate} disabled={generating}
+          className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-sky-500 to-violet-500 disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold rounded-2xl hover:shadow-lg transition-all text-sm inline-flex items-center justify-center gap-2">
+          {generating ? <><LoadingSpinner size="sm" /> Génération en cours…</> : '✨ Générer la fiche consultation'}
+        </button>
+        {genError && <div className="mt-4"><ErrorMessage message={genError} onRetry={handleGenerate} /></div>}
+      </GlassCard>
+
+      <AnimatePresence mode="wait">
+        {selected && (
+          <motion.div key={selected._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            <ConsultationSheetView sheet={selected} childName={childName} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Historique */}
+      <div>
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-2 h-2 bg-violet-400 rounded-full" />
+          <h2 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">Fiches précédentes</h2>
+          <span className="bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 text-xs font-semibold px-2.5 py-0.5 rounded-full">{sheets.length}</span>
+        </div>
+        {error && <div className="mb-3"><ErrorMessage message={error} onRetry={loadSheets} /></div>}
+        {loading ? (
+          <div className="flex justify-center py-6"><LoadingSpinner /></div>
+        ) : sheets.length === 0 ? (
+          <p className="text-sm text-gray-400 dark:text-gray-500">Aucune fiche générée pour le moment</p>
+        ) : (
+          <ul className="space-y-2">
+            {sheets.map(s => (
+              <li key={s._id}
+                className={`flex items-center gap-3 px-4 py-3 rounded-2xl border transition-all ${
+                  s._id === selectedId
+                    ? 'bg-sky-50 dark:bg-sky-900/20 border-sky-200 dark:border-sky-800'
+                    : 'bg-white dark:bg-slate-800 border-gray-100 dark:border-slate-700 hover:border-sky-200 dark:hover:border-sky-800'
+                }`}>
+                <button onClick={() => setSelectedId(id => id === s._id ? null : s._id)} className="flex-1 min-w-0 text-left">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                    📋 {new Date(s.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    <span className="text-gray-400 font-normal"> · {new Date(s.createdAt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
+                  </p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 truncate">{s.content?.resume}</p>
+                </button>
+                <button onClick={() => setDeleteTarget(s._id)} title="Supprimer la fiche"
+                  className="p-2 bg-red-50 dark:bg-red-900/20 text-red-500 rounded-xl hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors shrink-0">
+                  🗑️
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        title="Supprimer la fiche"
+        message="Supprimer cette fiche consultation ? Le pédiatre n'y aura plus accès."
+        confirmLabel="Supprimer"
+        danger
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
+    </div>
   )
 }
