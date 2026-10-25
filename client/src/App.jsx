@@ -15,12 +15,15 @@ import AppointmentRedirect from './pages/children/AppointmentRedirect'
 import PediatreDashboardPage from './pages/pediatre/PediatreDashboardPage'
 import PediatreProfilePage from './pages/pediatre/PediatreProfilePage'
 import PediatreVaccinationsPage from './pages/pediatre/PediatreVaccinationsPage'
+import PediatreNotesPage from './pages/pediatre/PediatreNotesPage'
+import PediatreSheetsPage from './pages/pediatre/PediatreSheetsPage'
 import PetitGuidePage from './pages/children/PetitGuidePage'
 import MeasurementsPage from './pages/children/MeasurementsPage'
 import DocumentsPage from './pages/children/DocumentsPage'
 import MeasurementRedirect from './pages/children/MeasurementRedirect'
 import DocumentRedirect from './pages/children/DocumentRedirect'
 import AdsAdminPage from './pages/AdsAdminPage'
+import ConsultationPage from './pages/consultation/ConsultationPage'
 import LoadingSpinner from './components/ui/LoadingSpinner'
 
 const PlaceholderPage = ({ title }) => (
@@ -73,7 +76,7 @@ function AppRoutes() {
         <Route path="/agenda" element={<AppointmentRedirect />} />
         <Route path="/journal" element={<PlaceholderPage title="Journal des Observations" />} />
         <Route path="/timeline" element={<PlaceholderPage title="Frise Chronologique" />} />
-        <Route path="/consultation" element={<PlaceholderPage title="Mode Consultation" />} />
+        <Route path="/consultation" element={<ConsultationPage />} />
         <Route path="/petitguide" element={<PetitGuidePage />} />
         <Route path="/ads/admin" element={<AdsAdminPage />} />
       </Route>
@@ -82,10 +85,10 @@ function AppRoutes() {
       <Route element={<PrivateRoute><RoleRoute role="pediatre"><PediatreShell /></RoleRoute></PrivateRoute>}>
         <Route path="/pediatre/dashboard" element={<PediatreDashboardPage />} />
         <Route path="/pediatre/profile" element={<PediatreProfilePage />} />
-        <Route path="/pediatre/fiches" element={<PlaceholderPage title="Fiches partagées" />} />
+        <Route path="/pediatre/fiches" element={<PediatreSheetsPage />} />
         <Route path="/pediatre/croissance" element={<PlaceholderPage title="Courbes de croissance" />} />
         <Route path="/pediatre/vaccinations" element={<PediatreVaccinationsPage />} />
-        <Route path="/pediatre/notes" element={<PlaceholderPage title="Mes notes" />} />
+        <Route path="/pediatre/notes" element={<PediatreNotesPage />} />
       </Route>
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
