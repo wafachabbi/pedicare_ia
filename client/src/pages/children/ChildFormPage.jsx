@@ -14,8 +14,7 @@ export default function ChildFormPage() {
   const navigate = useNavigate()
   const { fetchChildren } = useChild()
 
-  // Initialize allergies as empty array, medical history as empty string
-  const [form, setForm] = useState({ firstName: '', dateOfBirth: '', gender: 'M', bloodType: 'Inconnu', allergies: [], antecedentsMedicaux: '' })
+  const [form, setForm] = useState({ firstName: '', dateOfBirth: '', gender: 'M', bloodType: 'Inconnu', allergies: '', antecedentsMedicaux: '' })
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [fetchLoading, setFetchLoading] = useState(isEdit)
@@ -178,7 +177,7 @@ export default function ChildFormPage() {
               <textarea id="antecedentsMedicaux" value={form.antecedentsMedicaux}
                 onChange={e => setForm(f => ({ ...f, antecedentsMedicaux: e.target.value }))}
                 rows={3}
-                className="${inputClass(false)} resize-none"
+                className={`${inputClass(false)} resize-none`}
                 placeholder="Chirurgies, maladies chroniques, hospitalisations... (optionnel)" />
               <p className="text-xs text-gray-400 text-right mt-1">{form.antecedentsMedicaux.length > 0 ? form.antecedentsMedicaux.length + ' caractères' : 'Laisser vide si aucun antécédent'}</p>
             </div>
