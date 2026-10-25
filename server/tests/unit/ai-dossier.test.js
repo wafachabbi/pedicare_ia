@@ -29,7 +29,7 @@ beforeAll(async () => {
     { childId: ctx.childId, category: 'Symptôme', text: `${FIRST_NAME} a 38,5°C de fièvre, appelé le Dr. Karim Ben Ali au +216 98 123 456` },
     { childId: ctx.childId, category: 'Sommeil', text: 'Réveils nocturnes fréquents' }
   ])
-}, 30000)
+}, 60000)
 
 afterAll(async () => {
   await Milestone.deleteMany({ childId: ctx.childId })
@@ -50,7 +50,7 @@ describe('POST /api/ai/milestones/:childId', () => {
     }
     // Le prénom n'est jamais envoyé au modèle
     expect(JSON.stringify(res.body.data.suggestions) + res.body.data.assessment).not.toMatch(new RegExp(FIRST_NAME, 'i'))
-  }, 30000)
+  }, 60000)
 
   test('2ème appel sans modification → depuis le cache', async () => {
     const res = await auth(request(app).post(`/api/ai/milestones/${ctx.childId}`), ctx.parent)
@@ -78,7 +78,7 @@ describe('POST /api/ai/journal/:childId', () => {
     expect(summary).not.toMatch(new RegExp(FIRST_NAME, 'i'))
     expect(summary).not.toMatch(/Ben Ali|98 123 456/)
     expect(res.body.data.entryCount).toBe(2)
-  }, 30000)
+  }, 60000) // appel Groq réel : quota gratuit (429 + retries du SDK)
 
   test('nouvelle observation → cache invalidé', async () => {
     await auth(request(app).post(`/api/children/${ctx.childId}/journal`), ctx.parent).send({ category: 'Alimentation', text: 'Mange bien' })
@@ -86,7 +86,7 @@ describe('POST /api/ai/journal/:childId', () => {
     expect(res.status).toBe(200)
     expect(res.body.fromCache).toBeUndefined()
     expect(res.body.data.entryCount).toBe(3)
-  }, 30000)
+  }, 60000)
 
   test('autre parent → 404', async () => {
     const res = await auth(request(app).post(`/api/ai/journal/${ctx.childId}`), ctx.otherParent)
