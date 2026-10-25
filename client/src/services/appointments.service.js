@@ -8,5 +8,6 @@ export const appointmentsService = {
 }
 
 export const pediatresService = {
-  list: () => api.get('/pediatre/list')
+  list: () => api.get('/pediatre/list'),
+  patients: () => api.get('/pediatre/patients')
 }

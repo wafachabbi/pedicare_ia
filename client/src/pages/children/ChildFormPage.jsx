@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { childrenService } from '../../services/children.service'
@@ -14,7 +14,8 @@ export default function ChildFormPage() {
   const navigate = useNavigate()
   const { fetchChildren } = useChild()
 
-  const [form, setForm] = useState({ firstName: '', dateOfBirth: '', gender: 'M', bloodType: 'Inconnu', allergies: '' })
+  // Initialize allergies as empty array, medical history as empty string
+  const [form, setForm] = useState({ firstName: '', dateOfBirth: '', gender: 'M', bloodType: 'Inconnu', allergies: [], antecedentsMedicaux: '' })
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
   const [fetchLoading, setFetchLoading] = useState(isEdit)
@@ -25,7 +26,9 @@ export default function ChildFormPage() {
     childrenService.getOne(id)
       .then(data => {
         const c = data.data
-        setForm({ firstName: c.firstName, dateOfBirth: c.dateOfBirth?.split('T')[0] || '', gender: c.gender, bloodType: c.bloodType || 'Inconnu', allergies: c.allergies || '' })
+        // Normaliser allergies: convertir tableau en chaîne séparée par virgule
+        const allergiesStr = Array.isArray(c.allergies) ? c.allergies.join(', ') : (c.allergies || '')
+        setForm({ firstName: c.firstName, dateOfBirth: c.dateOfBirth?.split('T')[0] || '', gender: c.gender, bloodType: c.bloodType || 'Inconnu', allergies: allergiesStr, antecedentsMedicaux: c.antecedentsMedicaux || '' })
       })
       .catch(() => navigate('/children'))
       .finally(() => setFetchLoading(false))
@@ -46,8 +49,11 @@ export default function ChildFormPage() {
     setErrors({})
     setLoading(true)
     try {
-      if (isEdit) await childrenService.update(id, form)
-      else await childrenService.create(form)
+      // Normaliser allergies: convertir chaîne en tableau
+      const allergiesArray = form.allergies ? form.allergies.split(',').map(a => a.trim()).filter(a => a.length > 0) : []
+      const formData = { ...form, allergies: allergiesArray }
+      if (isEdit) await childrenService.update(id, formData)
+      else await childrenService.create(formData)
       await fetchChildren()
       navigate('/dashboard')
     } catch (err) {
@@ -78,8 +84,10 @@ export default function ChildFormPage() {
 
   return (
     <div className="max-w-lg mx-auto p-2">
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
-
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
         {/* Header */}
         <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-mint-500 to-sky-400 p-7 mb-6 shadow-xl shadow-mint-200 dark:shadow-mint-900/30">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4" />
@@ -113,7 +121,7 @@ export default function ChildFormPage() {
                 onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))}
                 aria-invalid={!!errors.firstName} className={inputClass(errors.firstName)}
                 placeholder="Prénom de l'enfant" />
-              {errors.firstName && <p id="firstName-error" role="alert" className="mt-1 text-xs text-red-500">{errors.firstName}</p>}
+              {errors.firstName && <p id="firstName-error" role="alert" className="mt-1 text-xs text-red-50">{errors.firstName}</p>}
             </div>
 
             {/* Date de naissance */}
@@ -123,7 +131,7 @@ export default function ChildFormPage() {
                 onChange={e => setForm(f => ({ ...f, dateOfBirth: e.target.value }))}
                 max={new Date().toISOString().split('T')[0]}
                 aria-invalid={!!errors.dateOfBirth} className={inputClass(errors.dateOfBirth)} />
-              {errors.dateOfBirth && <p role="alert" className="mt-1 text-xs text-red-500">{errors.dateOfBirth}</p>}
+              {errors.dateOfBirth && <p role="alert" className="mt-1 text-xs text-red-50">{errors.dateOfBirth}</p>}
             </div>
 
             {/* Genre */}
@@ -153,15 +161,26 @@ export default function ChildFormPage() {
               </select>
             </div>
 
-            {/* Allergies */}
+            {/* Allergies / Antécédents */}
             <div>
-              <label htmlFor="allergies" className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Allergies / Antécédents</label>
+              <label htmlFor="allergies" className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Allergies / Antécédents *</label>
               <textarea id="allergies" value={form.allergies}
                 onChange={e => setForm(f => ({ ...f, allergies: e.target.value }))}
                 rows={3} maxLength={500}
                 className={`${inputClass(false)} resize-none`}
-                placeholder="Ex: allergie aux arachides, asthme..." />
-              <p className="text-xs text-gray-400 text-right mt-1">{form.allergies.length}/500</p>
+                placeholder="Ex: allergie aux arachides, asthme... (séparer plusieurs par des virgules)" />
+              <p className="text-xs text-gray-400 text-right mt-1">{form.allergies ? form.allergies.split(',').length : 0}/5 allergies maximales</p>
+            </div>
+
+            {/* Antécédents médicaux */}
+            <div>
+              <label htmlFor="antecedentsMedicaux" className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Antécédents médicaux</label>
+              <textarea id="antecedentsMedicaux" value={form.antecedentsMedicaux}
+                onChange={e => setForm(f => ({ ...f, antecedentsMedicaux: e.target.value }))}
+                rows={3}
+                className="${inputClass(false)} resize-none"
+                placeholder="Chirurgies, maladies chroniques, hospitalisations... (optionnel)" />
+              <p className="text-xs text-gray-400 text-right mt-1">{form.antecedentsMedicaux.length > 0 ? form.antecedentsMedicaux.length + ' caractères' : 'Laisser vide si aucun antécédent'}</p>
             </div>
 
             {errors.global && (

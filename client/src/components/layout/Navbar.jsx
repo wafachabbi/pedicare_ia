@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 
@@ -12,10 +12,20 @@ const navItems = [
   { to: '/petitguide',   label: 'PetitGuide IA' },
 ]
 
+// Sous-menu "Dossier santé" (match = segments d'URL qui rendent l'entrée active)
+const dossierItems = [
+  { to: '/milestones',       icon: '🌱', label: 'Étapes de développement', match: 'milestones' },
+  { to: '/allergies',        icon: '🚫', label: 'Allergies & Antécédents', match: 'medical-records' },
+  { to: '/journal',          icon: '📔', label: 'Journal des observations', match: 'journal' },
+  { to: '/medical-contacts', icon: '🏥', label: 'Contacts médicaux',        match: 'medical-contacts' },
+]
+
 export default function Navbar() {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [menuOpen, setMenuOpen] = useState(false)
+  const isDossierActive = (item) => location.pathname.includes(`/${item.match}`) || location.pathname === item.to
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
@@ -49,6 +59,32 @@ export default function Navbar() {
               {label}
             </NavLink>
           ))}
+
+          {/* Dossier santé — menu déroulant */}
+          <div className="relative group">
+            <button
+              className={`flex items-center gap-1 text-sm font-medium transition-colors ${
+                dossierItems.some(isDossierActive) ? 'text-blue-600' : 'text-gray-600 hover:text-blue-500'
+              }`}
+              aria-haspopup="true"
+            >
+              Dossier santé <span className="text-xs" aria-hidden="true">▾</span>
+            </button>
+            <div className="absolute left-1/2 -translate-x-1/2 top-full pt-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-all z-50">
+              <div className="w-64 bg-white rounded-xl shadow-xl border border-gray-100 py-2">
+                {dossierItems.map(item => (
+                  <NavLink key={item.to} to={item.to}
+                    className={`flex items-center gap-3 px-4 py-2.5 text-sm transition-colors ${
+                      isDossierActive(item) ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:bg-gray-50'
+                    }`}
+                  >
+                    <span aria-hidden="true">{item.icon}</span>
+                    {item.label}
+                  </NavLink>
+                ))}
+              </div>
+            </div>
+          </div>
         </nav>
 
         {/* Right */}
@@ -100,6 +136,16 @@ export default function Navbar() {
                 }`
               }>
               {label}
+            </NavLink>
+          ))}
+          <p className="px-3 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase tracking-wide">Dossier santé</p>
+          {dossierItems.map(item => (
+            <NavLink key={item.to} to={item.to} onClick={() => setMenuOpen(false)}
+              className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium ${
+                isDossierActive(item) ? 'text-blue-600 bg-blue-50' : 'text-gray-600 hover:bg-gray-50'
+              }`}>
+              <span aria-hidden="true">{item.icon}</span>
+              {item.label}
             </NavLink>
           ))}
           <button onClick={() => { navigate('/children/new'); setMenuOpen(false) }}

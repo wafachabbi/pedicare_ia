@@ -32,8 +32,16 @@ const childSchema = new mongoose.Schema({
     default: 'Inconnu'
   },
   allergies: {
+    type: [String],
+    validate: [
+      function(arr) { return arr.length <= 5; },
+      'Maximum 5 allergies autorisées'
+    ],
+    message: 'Maximum 5 allergies autorisées'
+  },
+  antecedentsMedicaux: {
     type: String,
-    maxlength: [500, 'Allergies trop longues'],
+    maxlength: [1000, 'Antécédents médicaux trop longs'],
     default: ''
   }
 }, { timestamps: true })

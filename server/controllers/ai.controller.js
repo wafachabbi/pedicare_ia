@@ -3,8 +3,21 @@ const Child = require('../models/Child')
 const Vaccination = require('../models/Vaccination')
 const Appointment = require('../models/Appointment')
 const Measurement = require('../models/Measurement')
+const Milestone = require('../models/Milestone')
+const MedicalRecord = require('../models/MedicalRecord')
+const JournalEntry = require('../models/JournalEntry')
+const { canAccessChild } = require('../services/childAccess')
+const { anonymize } = require('../services/anonymize')
 
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+// Instanciation lazy pour éviter le crash au démarrage si la clé est absente
+let _groq = null
+function getGroq() {
+  if (!_groq) _groq = new Groq({ apiKey: process.env.GROQ_API_KEY || 'missing' })
+  return _groq
+}
+const groq = new Proxy({}, {
+  get(_, prop) { return getGroq()[prop] }
+})
 
 // ─── Cache simple en mémoire (réduit coût et latence) ───────────────────────
 const cache = new Map()
@@ -302,6 +315,143 @@ Règles :
   } catch (err) { next(err) }
 }
 
+// Parent (ses enfants) ou pédiatre (enfants qu'il suit) — renvoie l'enfant ou null
+const getAccessibleChild = async (childId, user) => {
+  if (!await canAccessChild(childId, user)) return null
+  return Child.findById(childId)
+}
+
+// ─── Helpers âge ─────────────────────────────────────────────────────────────
+function ageInMonths(dateOfBirth) {
+  return Math.floor((Date.now() - new Date(dateOfBirth)) / (1000 * 60 * 60 * 24 * 30))
+}
+function formatAge(ageMonths) {
+  return ageMonths < 24 ? `${ageMonths} mois` : `${Math.floor(ageMonths / 12)} ans et ${ageMonths % 12} mois`
+}
+
+const MILESTONE_CATEGORIES = ['Motricité globale', 'Motricité fine', 'Langage', 'Social/Émotionnel', 'Cognitif']
+
+// ─── POST /api/ai/milestones/:childId — jalons OMS ───────────────────────────
+const analyzeMilestones = async (req, res, next) => {
+  try {
+    const child = await getAccessibleChild(req.params.childId, req.user)
+    if (!child) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Enfant introuvable' } })
+
+    const milestones = await Milestone.find({ childId: child._id }).sort({ expectedAgeMonths: 1 }).lean()
+
+    // La clé de cache change dès qu'une étape est ajoutée/modifiée
+    const lastUpdate = milestones.reduce((max, m) => Math.max(max, new Date(m.updatedAt).getTime()), 0)
+    const cacheKey = `milestones_${child._id}_${milestones.length}_${lastUpdate}`
+    const cached = getCache(cacheKey)
+    if (cached) return res.json({ success: true, data: cached, fromCache: true })
+
+    const ageMonths = ageInMonths(child.dateOfBirth)
+    const statusLabel = { atteint: 'atteint', en_cours: 'en cours', non_atteint: 'non atteint' }
+
+    const prompt = `Tu es un pédiatre expert du développement de l'enfant, référencé sur les jalons de développement de l'OMS (WHO Motor Development Study) et les repères du carnet de santé.
+
+PATIENT : ${child.gender === 'F' ? 'fille' : 'garçon'} de ${formatAge(ageMonths)} (${ageMonths} mois)
+
+ÉTAPES DÉJÀ SUIVIES PAR LES PARENTS (${milestones.length}) :
+${milestones.length === 0 ? 'Aucune.' : milestones.map(m => `• [${m.category}] ${anonymize(m.title, child)} — ${statusLabel[m.status]}${m.expectedAgeMonths != null ? ` (attendu vers ${m.expectedAgeMonths} mois)` : ''}`).join('\n')}
+
+Désigne toujours le patient par « l'enfant » (aucun prénom).
+
+INSTRUCTIONS : Réponds UNIQUEMENT avec ce JSON valide (sans texte avant/après, sans balises) :
+{"assessment":"string","suggestions":[{"category":"string","title":"string","expectedAgeMonths":number,"tip":"string"}]}
+
+- assessment : 3-4 phrases bienveillantes évaluant le développement au regard des jalons OMS pour cet âge (signaler les étapes non atteintes qui devraient l'être, sans jamais diagnostiquer, et conseiller d'en parler au pédiatre si besoin).
+- suggestions : 3 à 6 jalons OMS pertinents pour l'âge actuel ou les 6 prochains mois, NON déjà présents dans la liste ci-dessus.
+- category : exactement une valeur parmi ${MILESTONE_CATEGORIES.map(c => `"${c}"`).join(', ')}.
+- title : jalon court (max 60 caractères), ex "Marche seul".
+- tip : une activité simple pour stimuler ce jalon (max 100 caractères).`
+
+    const raw = await callGroq(prompt, 700, 0.3)
+
+    let assessment = ''
+    let suggestions = []
+    try {
+      const jsonMatch = raw.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0])
+        assessment = parsed.assessment || ''
+        suggestions = (parsed.suggestions || [])
+          .filter(s => s && s.title && MILESTONE_CATEGORIES.includes(s.category))
+          .slice(0, 6)
+          .map(s => ({
+            category: s.category,
+            title: String(s.title).slice(0, 100),
+            expectedAgeMonths: Number.isFinite(Number(s.expectedAgeMonths)) ? Number(s.expectedAgeMonths) : null,
+            tip: s.tip ? String(s.tip).slice(0, 200) : ''
+          }))
+      }
+    } catch {
+      // réponse IA non exploitable : on renvoie une évaluation générique
+    }
+    if (!assessment) {
+      assessment = `Chaque enfant se développe à son rythme. Notez les progrès de ${child.firstName} et parlez-en avec votre pédiatre lors de la prochaine consultation.`
+    }
+
+    const result = { assessment, suggestions, childName: child.firstName, ageMonths, model: PREFERRED_MODEL }
+    setCache(cacheKey, result)
+
+    res.json({ success: true, data: result })
+  } catch (err) { next(err) }
+}
+
+// ─── POST /api/ai/journal/:childId — synthèse du journal ─────────────────────
+const summarizeJournal = async (req, res, next) => {
+  try {
+    const child = await getAccessibleChild(req.params.childId, req.user)
+    if (!child) return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Enfant introuvable' } })
+
+    // 30 dernières observations, sur les 3 derniers mois maximum
+    const since = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000)
+    const [entries, records] = await Promise.all([
+      JournalEntry.find({ childId: child._id, date: { $gte: since } }).sort({ date: -1 }).limit(30).lean(),
+      MedicalRecord.find({ childId: child._id, active: true }).lean()
+    ])
+
+    if (entries.length === 0) {
+      return res.status(400).json({ success: false, error: { code: 'NO_DATA', message: 'Aucune observation sur les 3 derniers mois' } })
+    }
+
+    const lastUpdate = entries.reduce((max, e) => Math.max(max, new Date(e.updatedAt).getTime()), 0)
+    const cacheKey = `journal_${child._id}_${entries.length}_${lastUpdate}`
+    const cached = getCache(cacheKey)
+    if (cached) return res.json({ success: true, data: cached, fromCache: true })
+
+    const allergies = records.filter(r => r.type === 'allergie').map(r => anonymize(r.name, child))
+    const antecedents = records.filter(r => r.type === 'antecedent').map(r => anonymize(r.name, child))
+
+    const prompt = `Tu es un assistant médical pédiatrique. Les parents tiennent un journal d'observations sur leur enfant. Prépare une synthèse en français, utile à présenter au pédiatre lors de la prochaine consultation.
+
+PATIENT : ${child.gender === 'F' ? 'fille' : 'garçon'} de ${formatAge(ageInMonths(child.dateOfBirth))}
+Allergies connues : ${allergies.length ? allergies.join(', ') : 'Aucune'}
+Antécédents : ${antecedents.length ? antecedents.join(', ') : 'Aucun'}
+
+OBSERVATIONS (${entries.length}, de la plus récente à la plus ancienne) :
+${entries.map(e => `• ${new Date(e.date).toLocaleDateString('fr-FR')} [${e.category}] ${anonymize(e.text.slice(0, 300), child)}`).join('\n')}
+
+Les données ont été anonymisées : désigne toujours le patient par « l'enfant » (aucun prénom).
+
+INSTRUCTIONS :
+Rédige une synthèse structurée avec exactement ces 4 sections :
+1. **Résumé de la période** (2-3 phrases)
+2. **Tendances observées** (sommeil, alimentation, comportement, symptômes récurrents…)
+3. **Questions à poser au pédiatre** (2 à 4 questions concrètes tirées des observations)
+4. **Points de vigilance** (symptômes à surveiller ; si un signe semble urgent, conseiller de consulter rapidement)
+
+Maximum 220 mots. Ton bienveillant et factuel. Ne jamais diagnostiquer.`
+
+    const summary = await callGroq(prompt, 600, 0.3)
+    const result = { summary, childName: child.firstName, entryCount: entries.length, model: PREFERRED_MODEL }
+    setCache(cacheKey, result)
+
+    res.json({ success: true, data: result })
+  } catch (err) { next(err) }
+}
+
 // ─── GET /api/ai/models ──────────────────────────────────────────────────────
 const listModels = async (req, res, next) => {
   try {
@@ -313,4 +463,4 @@ const listModels = async (req, res, next) => {
   } catch (err) { next(err) }
 }
 
-module.exports = { generateSummary, generateReminders, analyzeGrowth, analyzeImage, listModels }
+module.exports = { generateSummary, generateReminders, analyzeGrowth, analyzeImage, analyzeMilestones, summarizeJournal, listModels }

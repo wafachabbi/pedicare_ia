@@ -15,11 +15,18 @@ import AppointmentRedirect from './pages/children/AppointmentRedirect'
 import PediatreDashboardPage from './pages/pediatre/PediatreDashboardPage'
 import PediatreProfilePage from './pages/pediatre/PediatreProfilePage'
 import PediatreVaccinationsPage from './pages/pediatre/PediatreVaccinationsPage'
+import PediatrePatientsPage from './pages/pediatre/PediatrePatientsPage'
+import PediatrePatientLayout from './pages/pediatre/PediatrePatientLayout'
 import PetitGuidePage from './pages/children/PetitGuidePage'
 import MeasurementsPage from './pages/children/MeasurementsPage'
 import DocumentsPage from './pages/children/DocumentsPage'
 import MeasurementRedirect from './pages/children/MeasurementRedirect'
 import DocumentRedirect from './pages/children/DocumentRedirect'
+import MilestonesPage from './pages/children/MilestonesPage'
+import MedicalRecordsPage from './pages/children/MedicalRecordsPage'
+import JournalPage from './pages/journal/JournalPage'
+import MedicalContactsPage from './pages/medical-contacts/MedicalContactsPage'
+import ChildRedirect from './pages/children/ChildRedirect'
 import AdsAdminPage from './pages/AdsAdminPage'
 import LoadingSpinner from './components/ui/LoadingSpinner'
 
@@ -67,11 +74,18 @@ function AppRoutes() {
         <Route path="/children/:childId/appointments" element={<AppointmentsPage />} />
         <Route path="/children/:childId/measurements" element={<MeasurementsPage />} />
         <Route path="/children/:childId/documents" element={<DocumentsPage />} />
+        <Route path="/children/:childId/milestones" element={<MilestonesPage />} />
+        <Route path="/children/:childId/medical-records" element={<MedicalRecordsPage />} />
+        <Route path="/children/:childId/journal" element={<JournalPage />} />
+        <Route path="/children/:childId/medical-contacts" element={<MedicalContactsPage />} />
+        <Route path="/milestones" element={<ChildRedirect segment="milestones" />} />
+        <Route path="/allergies" element={<ChildRedirect segment="medical-records" />} />
+        <Route path="/journal" element={<ChildRedirect segment="journal" />} />
+        <Route path="/medical-contacts" element={<ChildRedirect segment="medical-contacts" />} />
         <Route path="/growth" element={<MeasurementRedirect />} />
         <Route path="/documents" element={<DocumentRedirect />} />
         <Route path="/vaccination" element={<VaccinationRedirect />} />
         <Route path="/agenda" element={<AppointmentRedirect />} />
-        <Route path="/journal" element={<PlaceholderPage title="Journal des Observations" />} />
         <Route path="/timeline" element={<PlaceholderPage title="Frise Chronologique" />} />
         <Route path="/consultation" element={<PlaceholderPage title="Mode Consultation" />} />
         <Route path="/petitguide" element={<PetitGuidePage />} />
@@ -85,6 +99,14 @@ function AppRoutes() {
         <Route path="/pediatre/fiches" element={<PlaceholderPage title="Fiches partagées" />} />
         <Route path="/pediatre/croissance" element={<PlaceholderPage title="Courbes de croissance" />} />
         <Route path="/pediatre/vaccinations" element={<PediatreVaccinationsPage />} />
+        <Route path="/pediatre/patients" element={<PediatrePatientsPage />} />
+        <Route path="/pediatre/patients/:childId" element={<PediatrePatientLayout />}>
+          <Route index element={<Navigate to="milestones" replace />} />
+          <Route path="milestones" element={<MilestonesPage />} />
+          <Route path="medical-records" element={<MedicalRecordsPage />} />
+          <Route path="journal" element={<JournalPage />} />
+          <Route path="medical-contacts" element={<MedicalContactsPage />} />
+        </Route>
         <Route path="/pediatre/notes" element={<PlaceholderPage title="Mes notes" />} />
       </Route>
 

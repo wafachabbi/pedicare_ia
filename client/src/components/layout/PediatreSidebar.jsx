@@ -5,6 +5,7 @@ import { useAuth } from '../../hooks/useAuth'
 const navItems = [
   { to: '/pediatre/dashboard', icon: '🏠', label: 'Tableau de bord' },
   { to: '/pediatre/profile', icon: '👨‍⚕️', label: 'Mon profil' },
+  { to: '/pediatre/patients', icon: '👶', label: 'Mes patients' },
   { to: '/pediatre/fiches', icon: '📋', label: 'Fiches partagées' },
   { to: '/pediatre/croissance', icon: '📊', label: 'Courbes de croissance' },
   { to: '/pediatre/vaccinations', icon: '💉', label: 'Suivi vaccinal' },
