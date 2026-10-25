@@ -3,6 +3,9 @@ const Measurement = require('../models/Measurement')
 const Vaccination = require('../models/Vaccination')
 const Appointment = require('../models/Appointment')
 const JournalEntry = require('../models/JournalEntry')
+const Milestone = require('../models/Milestone')
+const MedicalRecord = require('../models/MedicalRecord')
+const MedicalContact = require('../models/MedicalContact')
 
 // GET /api/children — liste des enfants du parent connecté
 const getChildren = async (req, res, next) => {
@@ -17,7 +20,7 @@ const getChildren = async (req, res, next) => {
 // POST /api/children — créer un profil enfant
 const createChild = async (req, res, next) => {
   try {
-    const { firstName, dateOfBirth, gender, bloodType, allergies } = req.body
+    const { firstName, dateOfBirth, gender, bloodType, allergies, antecedentsMedicaux } = req.body
 
     if (!firstName || !dateOfBirth || !gender) {
       return res.status(400).json({
@@ -26,13 +29,20 @@ const createChild = async (req, res, next) => {
       })
     }
 
+    // Normaliser allergies en tableau si c'est une chaîne
+    let allergiesNormalized = allergies
+    if (typeof allergies === 'string') {
+      allergiesNormalized = allergies.split(',').map(a => a.trim()).filter(a => a.length > 0)
+    }
+
     const child = await Child.create({
       parentId: req.user.id,
       firstName,
       dateOfBirth,
       gender,
       bloodType,
-      allergies
+      allergies: allergiesNormalized,
+      antecedentsMedicaux
     })
 
     res.status(201).json({ success: true, data: child })
@@ -60,9 +70,17 @@ const getChild = async (req, res, next) => {
 // PUT /api/children/:id — modifier un profil enfant
 const updateChild = async (req, res, next) => {
   try {
+    const { allergies, antecedentsMedicaux } = req.body
+
+    // Normaliser allergies en tableau si c'est une chaîne
+    let allergiesNormalized = allergies
+    if (typeof allergies === 'string') {
+      allergiesNormalized = allergies.split(',').map(a => a.trim()).filter(a => a.length > 0)
+    }
+
     const child = await Child.findOneAndUpdate(
       { _id: req.params.id, parentId: req.user.id },
-      { $set: req.body },
+      { $set: { allergies: allergiesNormalized, antecedentsMedicaux } },
       { new: true, runValidators: true }
     )
     if (!child) {
@@ -92,7 +110,10 @@ const deleteChild = async (req, res, next) => {
       Measurement.deleteMany({ childId: req.params.id }),
       Vaccination.deleteMany({ childId: req.params.id }),
       Appointment.deleteMany({ childId: req.params.id }),
-      JournalEntry.deleteMany({ childId: req.params.id })
+      JournalEntry.deleteMany({ childId: req.params.id }),
+      Milestone.deleteMany({ childId: req.params.id }),
+      MedicalRecord.deleteMany({ childId: req.params.id }),
+      MedicalContact.deleteMany({ childId: req.params.id })
     ])
     res.json({ success: true, message: 'Profil enfant supprimé' })
   } catch (err) {

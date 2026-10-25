@@ -4,6 +4,20 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../../hooks/useAuth'
 import { authService } from '../../services/auth.service'
 
+const InputField = ({ id, type = 'text', value, onChange, placeholder, icon, error }) => (
+  <div>
+    <div className={`flex items-center gap-3 border rounded-full px-4 py-3 transition-colors focus-within:border-blue-400 ${error ? 'border-red-400' : 'border-gray-200'}`}>
+      {icon}
+      <input
+        id={id} type={type} value={value} onChange={onChange}
+        placeholder={placeholder}
+        className="flex-1 text-sm text-gray-700 placeholder-gray-400 outline-none bg-transparent"
+      />
+    </div>
+    {error && <p role="alert" className="mt-1 text-xs text-red-500 pl-2">{error}</p>}
+  </div>
+)
+
 export default function RegisterPage() {
   const [role, setRole] = useState('parent')
   const [email, setEmail] = useState('')
@@ -44,20 +58,6 @@ export default function RegisterPage() {
       setLoading(false)
     }
   }
-
-  const InputField = ({ id, type = 'text', value, onChange, placeholder, icon, error }) => (
-    <div>
-      <div className={`flex items-center gap-3 border rounded-full px-4 py-3 transition-colors focus-within:border-blue-400 ${error ? 'border-red-400' : 'border-gray-200'}`}>
-        {icon}
-        <input
-          id={id} type={type} value={value} onChange={onChange}
-          placeholder={placeholder}
-          className="flex-1 text-sm text-gray-700 placeholder-gray-400 outline-none bg-transparent"
-        />
-      </div>
-      {error && <p role="alert" className="mt-1 text-xs text-red-500 pl-2">{error}</p>}
-    </div>
-  )
 
   const EmailIcon = <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
   const LockIcon = <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>

@@ -79,7 +79,7 @@ const buildAnonymizedInput = (child, { vaccinations, measurement, appointment, q
   age: computeAge(child.dateOfBirth),
   sexe: GENDER_LABEL[child.gender] || 'inconnu',
   groupeSanguin: child.bloodType || 'Inconnu',
-  allergies: maskFirstName(child.allergies, child.firstName) || 'Aucune connue',
+  allergies: maskFirstName([].concat(child.allergies || []).join(', '), child.firstName) || 'Aucune connue',
   vaccinations: vaccinations.map(v => ({ nom: v.vaccineName, date: monthYear(v.administeredAt) })),
   derniereMesure: measurement
     ? {

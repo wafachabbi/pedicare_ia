@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const auth = require('../middleware/auth')
 const checkRole = require('../middleware/checkRole')
-const { listPediatres, getProfile, updateProfile, getMyAppointments, getMyVaccinations } = require('../controllers/pediatre.controller')
+const { listPediatres, getProfile, updateProfile, getMyAppointments, getMyVaccinations, getPatients, getFiches, getCroissance } = require('../controllers/pediatre.controller')
 
 // Route accessible à tout utilisateur authentifié — liste des pédiatres
 router.get('/list', auth, listPediatres)
@@ -13,5 +13,6 @@ router.get('/profile', getProfile)
 router.put('/profile', updateProfile)
 router.get('/appointments', getMyAppointments)
 router.get('/vaccinations', getMyVaccinations)
+router.get('/patients', getPatients)
 
 module.exports = router

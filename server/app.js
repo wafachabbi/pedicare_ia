@@ -1,3 +1,7 @@
+// Sur certains réseaux Windows, Node n'arrive pas à résoudre les enregistrements SRV
+// de MongoDB Atlas (querySrv ECONNREFUSED) : on force des DNS publics.
+require('dns').setServers(['8.8.8.8', '1.1.1.1'])
+
 const express = require('express')
 const cors = require('cors')
 const errorHandler = require('./middleware/errorHandler')
@@ -19,6 +23,10 @@ app.use('/api/children/:childId/appointments', require('./routes/appointments.ro
 app.use('/api/children/:childId/questions', require('./routes/questions.routes'))
 app.use('/api/children/:childId/measurements', require('./routes/measurements.routes'))
 app.use('/api/children/:childId/documents', require('./routes/documents.routes'))
+app.use('/api/children/:childId/milestones', require('./routes/milestones.routes'))
+app.use('/api/children/:childId/medical-records', require('./routes/medicalRecords.routes'))
+app.use('/api/children/:childId/journal', require('./routes/journal.routes'))
+app.use('/api/children/:childId/medical-contacts', require('./routes/medicalContacts.routes'))
 app.use('/api/pediatre', require('./routes/pediatre.routes'))
 app.use('/api/notes', require('./routes/notes.routes'))
 app.use('/api/ai', require('./routes/ai.routes'))
