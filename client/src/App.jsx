@@ -17,6 +17,8 @@ import PediatreProfilePage from './pages/pediatre/PediatreProfilePage'
 import PediatreVaccinationsPage from './pages/pediatre/PediatreVaccinationsPage'
 import PediatrePatientsPage from './pages/pediatre/PediatrePatientsPage'
 import PediatrePatientLayout from './pages/pediatre/PediatrePatientLayout'
+import PediatreNotesPage from './pages/pediatre/PediatreNotesPage'
+import PediatreSheetsPage from './pages/pediatre/PediatreSheetsPage'
 import PetitGuidePage from './pages/children/PetitGuidePage'
 import MeasurementsPage from './pages/children/MeasurementsPage'
 import DocumentsPage from './pages/children/DocumentsPage'
@@ -28,6 +30,7 @@ import JournalPage from './pages/journal/JournalPage'
 import MedicalContactsPage from './pages/medical-contacts/MedicalContactsPage'
 import ChildRedirect from './pages/children/ChildRedirect'
 import AdsAdminPage from './pages/AdsAdminPage'
+import ConsultationPage from './pages/consultation/ConsultationPage'
 import LoadingSpinner from './components/ui/LoadingSpinner'
 
 const PlaceholderPage = ({ title }) => (
@@ -87,7 +90,7 @@ function AppRoutes() {
         <Route path="/vaccination" element={<VaccinationRedirect />} />
         <Route path="/agenda" element={<AppointmentRedirect />} />
         <Route path="/timeline" element={<PlaceholderPage title="Frise Chronologique" />} />
-        <Route path="/consultation" element={<PlaceholderPage title="Mode Consultation" />} />
+        <Route path="/consultation" element={<ConsultationPage />} />
         <Route path="/petitguide" element={<PetitGuidePage />} />
         <Route path="/ads/admin" element={<AdsAdminPage />} />
       </Route>
@@ -96,7 +99,7 @@ function AppRoutes() {
       <Route element={<PrivateRoute><RoleRoute role="pediatre"><PediatreShell /></RoleRoute></PrivateRoute>}>
         <Route path="/pediatre/dashboard" element={<PediatreDashboardPage />} />
         <Route path="/pediatre/profile" element={<PediatreProfilePage />} />
-        <Route path="/pediatre/fiches" element={<PlaceholderPage title="Fiches partagées" />} />
+        <Route path="/pediatre/fiches" element={<PediatreSheetsPage />} />
         <Route path="/pediatre/croissance" element={<PlaceholderPage title="Courbes de croissance" />} />
         <Route path="/pediatre/vaccinations" element={<PediatreVaccinationsPage />} />
         <Route path="/pediatre/patients" element={<PediatrePatientsPage />} />
@@ -107,7 +110,7 @@ function AppRoutes() {
           <Route path="journal" element={<JournalPage />} />
           <Route path="medical-contacts" element={<MedicalContactsPage />} />
         </Route>
-        <Route path="/pediatre/notes" element={<PlaceholderPage title="Mes notes" />} />
+        <Route path="/pediatre/notes" element={<PediatreNotesPage />} />
       </Route>
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />

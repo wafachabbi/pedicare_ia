@@ -20,6 +20,7 @@ app.use('/api/auth', require('./routes/auth.routes'))
 app.use('/api/children', require('./routes/children.routes'))
 app.use('/api/children/:childId/vaccinations', require('./routes/vaccinations.routes'))
 app.use('/api/children/:childId/appointments', require('./routes/appointments.routes'))
+app.use('/api/children/:childId/questions', require('./routes/questions.routes'))
 app.use('/api/children/:childId/measurements', require('./routes/measurements.routes'))
 app.use('/api/children/:childId/documents', require('./routes/documents.routes'))
 app.use('/api/children/:childId/milestones', require('./routes/milestones.routes'))
@@ -27,7 +28,9 @@ app.use('/api/children/:childId/medical-records', require('./routes/medicalRecor
 app.use('/api/children/:childId/journal', require('./routes/journal.routes'))
 app.use('/api/children/:childId/medical-contacts', require('./routes/medicalContacts.routes'))
 app.use('/api/pediatre', require('./routes/pediatre.routes'))
+app.use('/api/notes', require('./routes/notes.routes'))
 app.use('/api/ai', require('./routes/ai.routes'))
+app.use('/api/consultation-sheets', require('./routes/consultationSheet.routes'))
 app.use('/api/ads', require('./routes/ads.routes'))
 
 // Health check
