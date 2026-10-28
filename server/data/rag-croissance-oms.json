@@ -1,0 +1,111 @@
+{
+  "source": "OMS — WHO Child Growth Standards, 2006. Tables de percentiles officielles.",
+  "url": "https://www.who.int/tools/child-growth-standards/standards",
+  "note": "Valeurs P3/P15/P50/P85/P97 pour garçons (M) et filles (F). Poids en kg, taille en cm, PC en cm.",
+  "documents": [
+    {
+      "id": "oms_interpretation",
+      "title": "Interprétation des percentiles OMS",
+      "content": "Interprétation des percentiles de croissance OMS : P3 = 3% des enfants sont en dessous (seuil d'alerte inférieur). P15 = limite basse normale. P50 = médiane, croissance normale. P85 = limite haute normale. P97 = 97% des enfants sont en dessous (seuil d'alerte supérieur). Un enfant entre P15 et P85 est en croissance tout à fait normale. Entre P3-P15 ou P85-P97 : surveillance. En dessous de P3 ou au-dessus de P97 : consultation pédiatrique recommandée. Une cassure de courbe (changement de couloir de plus de 2 lignes) est plus significative qu'une valeur isolée.",
+      "keywords": ["percentile", "interprétation", "P3", "P50", "P97", "courbe", "cassure", "surveillance"]
+    },
+    {
+      "id": "oms_poids_garcon_0_12m",
+      "title": "Poids garçons 0-12 mois (OMS)",
+      "sexe": "M",
+      "mesure": "weight",
+      "content": "Poids garçons selon OMS (kg) : Naissance: P3=2.5, P15=2.9, P50=3.3, P85=3.9, P97=4.4. 1 mois: P3=3.4, P15=3.9, P50=4.5, P85=5.1, P97=5.8. 2 mois: P3=4.3, P15=5.0, P50=5.6, P85=6.3, P97=7.1. 3 mois: P3=5.0, P15=5.7, P50=6.4, P85=7.2, P97=8.0. 4 mois: P3=5.6, P15=6.2, P50=7.0, P85=7.8, P97=8.7. 5 mois: P3=6.0, P15=6.7, P50=7.5, P85=8.4, P97=9.3. 6 mois: P3=6.4, P15=7.1, P50=7.9, P85=8.8, P97=9.8. 9 mois: P3=7.1, P15=7.9, P50=8.9, P85=9.9, P97=11.0. 12 mois: P3=7.7, P15=8.6, P50=9.6, P85=10.8, P97=11.9.",
+      "keywords": ["poids", "garçon", "nourrisson", "0-12 mois", "OMS", "percentile"]
+    },
+    {
+      "id": "oms_poids_garcon_12_60m",
+      "title": "Poids garçons 12-60 mois (OMS)",
+      "sexe": "M",
+      "mesure": "weight",
+      "content": "Poids garçons selon OMS (kg) : 15 mois: P3=8.0, P15=9.0, P50=10.1, P85=11.3, P97=12.6. 18 mois: P3=8.4, P15=9.4, P50=10.5, P85=11.8, P97=13.2. 24 mois: P3=9.0, P15=10.2, P50=11.5, P85=12.9, P97=14.5. 30 mois: P3=9.8, P15=11.0, P50=12.5, P85=14.1, P97=15.9. 36 mois: P3=10.4, P15=11.8, P50=13.3, P85=15.1, P97=17.1. 42 mois: P3=11.0, P15=12.4, P50=14.1, P85=16.1, P97=18.3. 48 mois: P3=11.6, P15=13.1, P50=14.9, P85=17.0, P97=19.5. 60 mois: P3=12.7, P15=14.4, P50=16.5, P85=18.9, P97=21.8.",
+      "keywords": ["poids", "garçon", "1-5 ans", "OMS", "percentile", "enfant"]
+    },
+    {
+      "id": "oms_poids_fille_0_12m",
+      "title": "Poids filles 0-12 mois (OMS)",
+      "sexe": "F",
+      "mesure": "weight",
+      "content": "Poids filles selon OMS (kg) : Naissance: P3=2.4, P15=2.8, P50=3.2, P85=3.7, P97=4.2. 1 mois: P3=3.2, P15=3.6, P50=4.2, P85=4.8, P97=5.5. 2 mois: P3=3.9, P15=4.5, P50=5.1, P85=5.8, P97=6.6. 3 mois: P3=4.5, P15=5.2, P50=5.8, P85=6.6, P97=7.5. 4 mois: P3=5.0, P15=5.7, P50=6.4, P85=7.3, P97=8.2. 5 mois: P3=5.4, P15=6.1, P50=6.9, P85=7.8, P97=8.8. 6 mois: P3=5.7, P15=6.5, P50=7.3, P85=8.2, P97=9.3. 9 mois: P3=6.5, P15=7.3, P50=8.2, P85=9.3, P97=10.6. 12 mois: P3=7.0, P15=7.9, P50=8.9, P85=10.1, P97=11.5.",
+      "keywords": ["poids", "fille", "nourrisson", "0-12 mois", "OMS", "percentile"]
+    },
+    {
+      "id": "oms_poids_fille_12_60m",
+      "title": "Poids filles 12-60 mois (OMS)",
+      "sexe": "F",
+      "mesure": "weight",
+      "content": "Poids filles selon OMS (kg) : 15 mois: P3=7.4, P15=8.4, P50=9.5, P85=10.8, P97=12.3. 18 mois: P3=7.8, P15=8.8, P50=10.0, P85=11.4, P97=13.0. 24 mois: P3=8.5, P15=9.6, P50=10.9, P85=12.5, P97=14.3. 30 mois: P3=9.3, P15=10.5, P50=12.0, P85=13.7, P97=15.8. 36 mois: P3=10.0, P15=11.3, P50=12.9, P85=14.8, P97=17.0. 42 mois: P3=10.6, P15=12.0, P50=13.7, P85=15.7, P97=18.2. 48 mois: P3=11.2, P15=12.7, P50=14.5, P85=16.7, P97=19.3. 60 mois: P3=12.3, P15=14.0, P50=16.1, P85=18.6, P97=21.7.",
+      "keywords": ["poids", "fille", "1-5 ans", "OMS", "percentile", "enfant"]
+    },
+    {
+      "id": "oms_taille_garcon_0_24m",
+      "title": "Taille garçons 0-24 mois (OMS)",
+      "sexe": "M",
+      "mesure": "height",
+      "content": "Taille garçons selon OMS (cm) : Naissance: P3=46.1, P15=47.9, P50=49.9, P85=51.8, P97=53.7. 3 mois: P3=57.3, P15=59.4, P50=61.4, P85=63.5, P97=65.5. 6 mois: P3=63.3, P15=65.5, P50=67.6, P85=69.8, P97=71.9. 9 mois: P3=68.0, P15=70.1, P50=72.3, P85=74.5, P97=76.5. 12 mois: P3=71.7, P15=73.9, P50=75.7, P85=78.4, P97=80.5. 15 mois: P3=74.5, P15=76.9, P50=79.1, P85=81.4, P97=83.6. 18 mois: P3=77.2, P15=79.6, P50=82.3, P85=84.6, P97=86.9. 24 mois: P3=82.3, P15=84.8, P50=87.8, P85=90.4, P97=93.0.",
+      "keywords": ["taille", "garçon", "nourrisson", "0-24 mois", "OMS", "percentile", "longueur"]
+    },
+    {
+      "id": "oms_taille_garcon_24_60m",
+      "title": "Taille garçons 24-60 mois (OMS)",
+      "sexe": "M",
+      "mesure": "height",
+      "content": "Taille garçons selon OMS (cm) : 24 mois: P3=82.3, P15=84.8, P50=87.8, P85=90.4, P97=93.0. 30 mois: P3=87.1, P15=89.8, P50=92.9, P85=95.9, P97=98.8. 36 mois: P3=91.1, P15=94.0, P50=96.1, P85=100.7, P97=103.5. 42 mois: P3=94.9, P15=97.9, P50=101.3, P85=104.6, P97=107.7. 48 mois: P3=98.4, P15=101.5, P50=105.3, P85=108.6, P97=111.9. 60 mois: P3=104.9, P15=108.3, P50=110.0, P85=115.4, P97=118.9.",
+      "keywords": ["taille", "garçon", "2-5 ans", "OMS", "percentile", "stature"]
+    },
+    {
+      "id": "oms_taille_fille_0_24m",
+      "title": "Taille filles 0-24 mois (OMS)",
+      "sexe": "F",
+      "mesure": "height",
+      "content": "Taille filles selon OMS (cm) : Naissance: P3=45.4, P15=47.3, P50=49.1, P85=51.0, P97=52.9. 3 mois: P3=55.6, P15=57.7, P50=59.8, P85=61.9, P97=64.0. 6 mois: P3=61.2, P15=63.5, P50=65.7, P85=67.9, P97=70.2. 9 mois: P3=65.6, P15=68.0, P50=70.1, P85=72.6, P97=74.9. 12 mois: P3=69.2, P15=71.7, P50=74.0, P85=76.4, P97=78.9. 15 mois: P3=72.0, P15=74.7, P50=77.5, P85=80.0, P97=82.5. 18 mois: P3=74.9, P15=77.7, P50=80.7, P85=83.4, P97=86.2. 24 mois: P3=80.0, P15=83.0, P50=86.4, P85=89.2, P97=92.2.",
+      "keywords": ["taille", "fille", "nourrisson", "0-24 mois", "OMS", "percentile", "longueur"]
+    },
+    {
+      "id": "oms_taille_fille_24_60m",
+      "title": "Taille filles 24-60 mois (OMS)",
+      "sexe": "F",
+      "mesure": "height",
+      "content": "Taille filles selon OMS (cm) : 24 mois: P3=80.0, P15=83.0, P50=86.4, P85=89.2, P97=92.2. 30 mois: P3=85.1, P15=88.2, P50=91.6, P85=94.8, P97=97.9. 36 mois: P3=89.2, P15=92.5, P50=96.1, P85=99.5, P97=102.7. 42 mois: P3=93.0, P15=96.5, P50=100.3, P85=103.8, P97=107.2. 48 mois: P3=96.4, P15=100.2, P50=104.3, P85=108.0, P97=111.5. 60 mois: P3=103.0, P15=107.1, P50=111.3, P85=115.3, P97=119.2.",
+      "keywords": ["taille", "fille", "2-5 ans", "OMS", "percentile", "stature"]
+    },
+    {
+      "id": "oms_pc_garcon",
+      "title": "Périmètre crânien garçons 0-36 mois (OMS)",
+      "sexe": "M",
+      "mesure": "headCircumference",
+      "content": "Périmètre crânien garçons selon OMS (cm) : Naissance: P3=31.9, P15=33.0, P50=34.5, P85=35.7, P97=37.0. 3 mois: P3=38.0, P15=39.3, P50=40.5, P85=41.8, P97=43.0. 6 mois: P3=41.5, P15=42.8, P50=44.0, P85=45.2, P97=46.4. 9 mois: P3=43.5, P15=44.8, P50=45.9, P85=47.2, P97=48.4. 12 mois: P3=44.8, P15=46.1, P50=47.2, P85=48.4, P97=49.7. 18 mois: P3=46.4, P15=47.6, P50=48.9, P85=50.1, P97=51.3. 24 mois: P3=47.2, P15=48.5, P50=49.6, P85=50.9, P97=52.2. 36 mois: P3=48.1, P15=49.3, P50=50.6, P85=51.8, P97=53.0.",
+      "keywords": ["périmètre crânien", "PC", "garçon", "OMS", "tête", "macrocéphalie", "microcéphalie"]
+    },
+    {
+      "id": "oms_pc_fille",
+      "title": "Périmètre crânien filles 0-36 mois (OMS)",
+      "sexe": "F",
+      "mesure": "headCircumference",
+      "content": "Périmètre crânien filles selon OMS (cm) : Naissance: P3=31.5, P15=32.5, P50=33.9, P85=35.1, P97=36.2. 3 mois: P3=37.1, P15=38.3, P50=39.5, P85=40.8, P97=42.0. 6 mois: P3=40.3, P15=41.5, P50=42.8, P85=44.0, P97=45.3. 9 mois: P3=42.3, P15=43.5, P50=44.6, P85=45.8, P97=47.1. 12 mois: P3=43.5, P15=44.7, P50=45.8, P85=47.1, P97=48.3. 18 mois: P3=45.0, P15=46.2, P50=47.3, P85=48.6, P97=49.8. 24 mois: P3=45.7, P15=47.0, P50=48.2, P85=49.5, P97=50.7. 36 mois: P3=46.6, P15=47.9, P50=49.1, P85=50.4, P97=51.7.",
+      "keywords": ["périmètre crânien", "PC", "fille", "OMS", "tête", "macrocéphalie", "microcéphalie"]
+    },
+    {
+      "id": "oms_imc_interpretation",
+      "title": "IMC et interprétation pour enfants",
+      "content": "IMC (Indice de Masse Corporelle) chez l'enfant : IMC = poids(kg) / taille(m)². Chez l'enfant, l'IMC s'interprète selon des courbes de percentiles spécifiques à l'âge et au sexe (contrairement à l'adulte). Sous le P3 : maigreur, risque de dénutrition. P3-P15 : insuffisance pondérale légère. P15-P85 : corpulence normale. P85-P97 : surpoids. Au-dessus P97 : obésité. L'IMC doit s'interpréter en tendance (évolution) plutôt qu'en valeur ponctuelle. La courbe d'IMC présente normalement un rebond d'adiposité vers 5-6 ans.",
+      "keywords": ["IMC", "indice masse corporelle", "surpoids", "obésité", "maigreur", "corpulence"]
+    },
+    {
+      "id": "oms_vitesse_croissance",
+      "title": "Vitesse de croissance normale",
+      "content": "Vitesse de croissance normale chez l'enfant : Poids — 0-3 mois: +200g/semaine. 3-6 mois: +150g/semaine. 6-12 mois: +100g/semaine. 1-3 ans: +200g/mois. 3-5 ans: +150g/mois. Taille — 1ère année: +25 cm. 2ème année: +12 cm. 3ème année: +8 cm. 4ème-5ème année: +6-7 cm/an. Une stagnation de poids sur 2 mois consécutifs chez le nourrisson ou de taille sur 6 mois chez l'enfant doit alerter. Une progression très rapide (gain de 2 couloirs) mérite aussi surveillance.",
+      "keywords": ["vitesse croissance", "stagnation", "pondérale", "statural", "gain poids", "gain taille"]
+    },
+    {
+      "id": "oms_alerte_croissance",
+      "title": "Signes d'alerte de croissance",
+      "content": "Signes d'alerte nécessitant consultation pédiatrique : Poids en dessous du 3ème percentile (P3). Taille en dessous du 3ème percentile avec parents de taille normale. Cassure de courbe : changement de couloir vers le bas sur 2 mesures consécutives. Stagnation pondérale ou statural sur 2-3 mois. IMC au-dessus du 97ème percentile. Périmètre crânien en dessous de P3 (microcéphalie) ou au-dessus de P97 (macrocéphalie). Écart important entre courbe poids et courbe taille (poids >> taille ou taille >> poids).",
+      "keywords": ["alerte", "consultation", "cassure courbe", "stagnation", "microcéphalie", "macrocéphalie", "P3", "P97"]
+    }
+  ]
+}
