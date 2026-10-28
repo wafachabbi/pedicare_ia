@@ -1,0 +1,116 @@
+{
+  "source": "Calendrier vaccinal français officiel — Santé Publique France 2024",
+  "url": "https://www.santepubliquefrance.fr/maladies-et-traumatismes/maladies-a-prevention-vaccinale/calendrier-vaccinal",
+  "documents": [
+    {
+      "id": "vacc_2m",
+      "ageMin": 2,
+      "ageMax": 2,
+      "title": "Vaccins obligatoires à 2 mois",
+      "content": "À 2 mois (8 semaines) : vaccin hexavalent DTCaP-Hib-HepB (Diphtérie, Tétanos, Coqueluche acellulaire, Poliomyélite, Haemophilus influenzae b, Hépatite B) — 1ère dose. Vaccin Pneumocoque 13 valences (Prevenar 13) — 1ère dose. Ces deux vaccins sont obligatoires en France depuis 2018.",
+      "vaccins": ["DTCaP-Hib-HepB", "Pneumocoque 13V"],
+      "obligatoire": true,
+      "keywords": ["2 mois", "hexavalent", "pneumocoque", "DTCaP", "HepB", "nourrisson", "obligatoire"]
+    },
+    {
+      "id": "vacc_4m",
+      "ageMin": 4,
+      "ageMax": 4,
+      "title": "Vaccins à 4 mois",
+      "content": "À 4 mois : vaccin hexavalent DTCaP-Hib-HepB — 2ème dose. Vaccin Pneumocoque 13V — 2ème dose. Vaccin Méningocoque B (Bexsero) — 1ère dose (recommandé). Le schéma à 3 doses pour le Méningocoque B est : 3 mois, 5 mois, 12 mois selon le schéma alternatif.",
+      "vaccins": ["DTCaP-Hib-HepB", "Pneumocoque 13V", "Méningocoque B"],
+      "obligatoire": true,
+      "keywords": ["4 mois", "hexavalent", "pneumocoque", "méningocoque B", "Bexsero"]
+    },
+    {
+      "id": "vacc_5m",
+      "ageMin": 5,
+      "ageMax": 5,
+      "title": "Vaccin Méningocoque C à 5 mois",
+      "content": "À 5 mois : vaccin Méningocoque C — 1ère dose (obligatoire depuis 2018). Ce vaccin protège contre les infections invasives à méningocoque de sérogroupe C, dont les méningites bactériennes.",
+      "vaccins": ["Méningocoque C"],
+      "obligatoire": true,
+      "keywords": ["5 mois", "méningocoque C", "méningite", "obligatoire"]
+    },
+    {
+      "id": "vacc_11m",
+      "ageMin": 11,
+      "ageMax": 11,
+      "title": "Vaccins à 11 mois",
+      "content": "À 11 mois : vaccin hexavalent DTCaP-Hib-HepB — 3ème et dernière dose du primovaccination. Vaccin Pneumocoque 13V — 3ème dose (rappel). Vaccin Méningocoque B — 2ème dose si schéma 2+1. Cette dose complète le schéma de primovaccination de base.",
+      "vaccins": ["DTCaP-Hib-HepB", "Pneumocoque 13V", "Méningocoque B"],
+      "obligatoire": true,
+      "keywords": ["11 mois", "hexavalent", "pneumocoque", "méningocoque B", "rappel"]
+    },
+    {
+      "id": "vacc_12m",
+      "ageMin": 12,
+      "ageMax": 12,
+      "title": "Vaccins à 12 mois",
+      "content": "À 12 mois : vaccin ROR (Rougeole-Oreillons-Rubéole) — 1ère dose, obligatoire. Vaccin Méningocoque C — 2ème dose (rappel à 12 mois après la dose de 5 mois), obligatoire. Vaccin Méningocoque B — 3ème dose (rappel) si schéma 2+1. Le ROR doit être administré entre 11 et 23 mois pour la première dose.",
+      "vaccins": ["ROR", "Méningocoque C", "Méningocoque B"],
+      "obligatoire": true,
+      "keywords": ["12 mois", "ROR", "rougeole", "oreillons", "rubéole", "méningocoque C", "obligatoire"]
+    },
+    {
+      "id": "vacc_16_18m",
+      "ageMin": 16,
+      "ageMax": 18,
+      "title": "Vaccins entre 16 et 18 mois",
+      "content": "Entre 16 et 18 mois : vaccin ROR — 2ème dose (obligatoire), à administrer au moins 2 mois après la 1ère dose. Cette 2ème dose est essentielle pour assurer une immunité complète contre la rougeole, les oreillons et la rubéole. Vaccin Méningocoque B — rappel si schéma non complet.",
+      "vaccins": ["ROR"],
+      "obligatoire": true,
+      "keywords": ["16 mois", "17 mois", "18 mois", "ROR", "rougeole", "2ème dose", "rappel"]
+    },
+    {
+      "id": "vacc_6ans",
+      "ageMin": 60,
+      "ageMax": 72,
+      "title": "Rappel vaccinal à 6 ans",
+      "content": "À 6 ans (entre 5 et 6 ans) : rappel DTCaP (Diphtérie, Tétanos, Coqueluche acellulaire, Poliomyélite). Ce rappel est obligatoire. C'est le premier grand rappel après la série de primovaccination du nourrisson. Doit être administré entre 60 et 72 mois.",
+      "vaccins": ["DTCaP"],
+      "obligatoire": true,
+      "keywords": ["6 ans", "5 ans", "rappel", "DTCaP", "diphtérie", "tétanos", "coqueluche", "polio"]
+    },
+    {
+      "id": "vacc_11_13ans",
+      "ageMin": 132,
+      "ageMax": 156,
+      "title": "Vaccins entre 11 et 13 ans",
+      "content": "Entre 11 et 13 ans : rappel dTcaP (avec composante coqueluche réduite) obligatoire. Vaccin HPV (Papillomavirus humain) recommandé pour toutes les filles ET garçons entre 11 et 14 ans, schéma 2 doses. Méningocoque ACYW si non fait. Le HPV protège contre les cancers liés au papillomavirus.",
+      "vaccins": ["dTcaP", "HPV", "Méningocoque ACYW"],
+      "obligatoire": false,
+      "keywords": ["11 ans", "12 ans", "13 ans", "adolescent", "HPV", "papillomavirus", "rappel coqueluche", "dTcaP"]
+    },
+    {
+      "id": "vacc_grippe",
+      "ageMin": 6,
+      "ageMax": 999,
+      "title": "Vaccin grippe saisonnière",
+      "content": "Vaccin grippe saisonnière : recommandé chaque année pour les enfants à risque (asthme, cardiopathie, immunodépression), les femmes enceintes, et tous les enfants de 6 mois à 18 ans selon les recommandations régionales. Administré en automne (octobre-novembre). Non obligatoire mais fortement recommandé.",
+      "vaccins": ["Grippe"],
+      "obligatoire": false,
+      "keywords": ["grippe", "influenza", "saisonnier", "annuel", "automne", "recommandé"]
+    },
+    {
+      "id": "vacc_rattrapage",
+      "ageMin": 0,
+      "ageMax": 999,
+      "title": "Vaccinations de rattrapage",
+      "content": "Rattrapage vaccinal : tout enfant n'ayant pas reçu les vaccins obligatoires peut être rattrapé à tout âge. Le schéma de rattrapage est simplifié par rapport au schéma nourrisson. Pour DTCaP-Hib-HepB après 6 ans : 2 doses à M0 et M2. Pour ROR après 24 mois : 2 doses à 1 mois d'intervalle. Consulter le médecin pour établir le calendrier de rattrapage personnalisé.",
+      "vaccins": ["Rattrapage DTCaP", "Rattrapage ROR"],
+      "obligatoire": false,
+      "keywords": ["rattrapage", "retard vaccinal", "vaccin manquant", "non vacciné", "schéma incomplet"]
+    },
+    {
+      "id": "vacc_contre_indications",
+      "ageMin": 0,
+      "ageMax": 999,
+      "title": "Contre-indications et précautions vaccinales",
+      "content": "Contre-indications générales : allergie sévère (anaphylaxie) à une dose précédente ou à un composant du vaccin. Maladie fébrile aiguë sévère (reporter le vaccin). Pour les vaccins vivants atténués (ROR, varicelle) : immunodépression sévère est une contre-indication absolue. Grossesse : contre-indication pour les vaccins vivants. Les maladies bénignes (rhume, légère fièvre) ne contre-indiquent pas la vaccination.",
+      "vaccins": [],
+      "obligatoire": false,
+      "keywords": ["contre-indication", "allergie", "fièvre", "immunodépression", "grossesse", "précaution"]
+    }
+  ]
+}

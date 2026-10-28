@@ -1,0 +1,44 @@
+# Dependencies
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Environment variables (NEVER commit — contient les clés API)
+.env
+*.env
+server/.env
+client/.env
+
+# Build output
+client/dist/
+client/build/
+
+# Kiro IDE files
+.kiro/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Uploads utilisateurs (fichiers médicaux — ne jamais committer)
+server/uploads/*
+!server/uploads/.gitkeep
+
+# Fichiers temporaires
+*.tmp
+*.temp
+.cache/
+
+# IDE
+.vscode/settings.json
+.idea/
+
+# Colab checkpoints
+qlora/.ipynb_checkpoints/
