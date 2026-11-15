@@ -8,6 +8,7 @@ const MedicalRecord = require('../models/MedicalRecord')
 const JournalEntry = require('../models/JournalEntry')
 const { canAccessChild } = require('../services/childAccess')
 const { anonymize } = require('../services/anonymize')
+const { ragVaccins, ragCroissance } = require('../services/rag.service')
 
 // Instanciation lazy pour éviter le crash au démarrage si la clé est absente
 let _groq = null
@@ -75,6 +76,12 @@ const ownsChild = async (childId, userId) => {
 }
 
 // ─── POST /api/ai/summary/:childId ──────────────────────────────────────────
+// Technique : RAG
+//   1. Récupère les vaccinations et RDV du dossier de l'enfant (base de connaissances)
+//   2. Interroge l'index RAG ragVaccins pour retrouver les recommandations officielles
+//      correspondant à l'âge de l'enfant (retrieve + filtre ageMonths)
+//   3. Injecte ces documents dans le prompt avant l'appel au LLM
+//   → Le modèle génère un résumé ancré dans les données réelles du dossier
 const generateSummary = async (req, res, next) => {
   try {
     const child = await ownsChild(req.params.childId, req.user.id)
@@ -94,8 +101,15 @@ const generateSummary = async (req, res, next) => {
     const ageMonths = Math.floor((now - new Date(child.dateOfBirth)) / (1000 * 60 * 60 * 24 * 30))
     const age = ageMonths < 24 ? `${ageMonths} mois` : `${Math.floor(ageMonths / 12)} ans`
 
-    // Prompt optimisé — instructions claires, rôle défini, format attendu
+    // ── RAG : récupère les documents vaccinals pertinents pour l'âge ──────
+    // Requête construite à partir du profil de l'enfant pour maximiser la pertinence
+    const ragQuery = `vaccins recommandés enfant ${age} ${child.gender === 'F' ? 'fille' : 'garçon'}`
+    const ragDocs  = ragVaccins.retrieve(ragQuery, 3, { ageMonths })
+    const ragContext = ragVaccins.formatForPrompt(ragDocs, 'RECOMMANDATIONS VACCINALES OFFICIELLES (Santé Publique France 2024)')
+
+    // ── Prompt enrichi avec le contexte RAG ───────────────────────────────
     const prompt = `Tu es un assistant médical pédiatrique expert. Génère un résumé clair en français du dossier de santé de cet enfant.
+Appuie-toi sur les recommandations officielles fournies ci-dessous pour évaluer le statut vaccinal.
 
 DONNÉES PATIENT :
 - Prénom : ${child.firstName}
@@ -104,23 +118,29 @@ DONNÉES PATIENT :
 - Groupe sanguin : ${child.bloodType || 'Inconnu'}
 - Allergies connues : ${child.allergies || 'Aucune'}
 
-VACCINATIONS (${vaccinations.length}) :
+VACCINATIONS ENREGISTRÉES (${vaccinations.length}) :
 ${vaccinations.length === 0 ? 'Aucune vaccination enregistrée.' : vaccinations.slice(0, 10).map(v => `• ${v.vaccineName} — ${new Date(v.administeredAt).toLocaleDateString('fr-FR')}`).join('\n')}
 
 RENDEZ-VOUS (${appointments.length}) :
 ${appointments.length === 0 ? 'Aucun.' : appointments.slice(0, 5).map(a => `• ${a.type === 'exam' ? 'Examen' : 'Consultation'} — ${new Date(a.dateTime).toLocaleDateString('fr-FR')} (${a.status === 'upcoming' ? 'à venir' : 'passé'})${a.practitioner ? ' avec ' + a.practitioner : ''}`).join('\n')}
-
+${ragContext}
 INSTRUCTIONS :
 Rédige un résumé structuré avec exactement ces 4 sections :
 1. **Aperçu général** (2-3 phrases sur l'état de santé global)
-2. **Statut vaccinal** (évaluation du suivi vaccinal)
+2. **Statut vaccinal** (compare les vaccinations enregistrées aux recommandations officielles ci-dessus)
 3. **Points d'attention** (éléments importants à surveiller)
 4. **Recommandation** (conseil pratique pour les parents)
 
 Maximum 180 mots. Ton professionnel mais accessible. Ne jamais diagnostiquer.`
 
     const summary = await callGroq(prompt, 400, 0.4)
-    const result = { summary, childName: child.firstName, model: PREFERRED_MODEL }
+    const result = {
+      summary,
+      childName: child.firstName,
+      model: PREFERRED_MODEL,
+      ragDocsUsed: ragDocs.length,      // nb de documents RAG injectés
+      technique: 'RAG'
+    }
     setCache(cacheKey, result)
 
     res.json({ success: true, data: result })
@@ -128,6 +148,12 @@ Maximum 180 mots. Ton professionnel mais accessible. Ne jamais diagnostiquer.`
 }
 
 // ─── POST /api/ai/reminders/:childId ────────────────────────────────────────
+// Technique : RAG + Pruning
+//   RAG  : interroge ragVaccins avec filtre strict sur l'âge exact de l'enfant
+//          → seuls les documents correspondant à sa tranche d'âge sont récupérés
+//   Pruning : on élague les documents RAG redondants (score < seuil) avant injection
+//             et on limite strictement les tokens envoyés au LLM (topK=2, maxTokens réduit)
+//             → modèle plus léger, réponse plus rapide, moins de bruit dans le contexte
 const generateReminders = async (req, res, next) => {
   try {
     const child = await ownsChild(req.params.childId, req.user.id)
@@ -147,38 +173,47 @@ const generateReminders = async (req, res, next) => {
     const ageMonths = Math.floor((now - new Date(child.dateOfBirth)) / (1000 * 60 * 60 * 24 * 30))
     const age = ageMonths < 24 ? `${ageMonths} mois` : `${Math.floor(ageMonths / 12)} ans`
 
-    // Prompt structuré pour forcer un JSON valide
-    const prompt = `Tu es un assistant médical pédiatrique. Analyse ce dossier et génère des rappels de santé en français.
+    // ── RAG : récupère les vaccins officiels pour l'âge exact ────────────
+    const ragQuery = `vaccins obligatoires recommandés ${age}`
+    // topK=2 → Pruning : on ne garde que les 2 documents les plus pertinents
+    // filtre ageMonths → élagage strict sur la tranche d'âge, supprime les docs hors-sujet
+    const ragDocs = ragVaccins.retrieve(ragQuery, 2, { ageMonths })
+
+    // ── Pruning supplémentaire : retire les docs en dessous du seuil de score ──
+    // Seuil 0.05 → élimine les documents faiblement pertinents pour alléger le contexte
+    const PRUNING_THRESHOLD = 0.05
+    const prunedDocs = ragDocs.filter(d => d.score >= PRUNING_THRESHOLD)
+
+    const ragContext = ragVaccins.formatForPrompt(prunedDocs, 'CALENDRIER VACCINAL OFFICIEL (Santé Publique France 2024)')
+
+    // Liste des vaccins déjà reçus (pour comparaison dans le prompt)
+    const vaccsRecus = vaccinations.length > 0
+      ? vaccinations.map(v => v.vaccineName).join(', ')
+      : 'Aucun'
+
+    // ── Prompt allégé (Pruning : moins de tokens = plus rapide) ──────────
+    const prompt = `Tu es un assistant médical pédiatrique. Génère des rappels de santé en français.
 
 PATIENT : ${child.firstName}, ${age}, ${child.gender === 'F' ? 'Fille' : 'Garçon'}
 Allergies : ${child.allergies || 'Aucune'}
-Vaccins reçus : ${vaccinations.length > 0 ? vaccinations.map(v => v.vaccineName).join(', ') : 'Aucun'}
+Vaccins reçus : ${vaccsRecus}
 Rendez-vous à venir : ${appointments.length > 0 ? appointments.map(a => `${a.type} le ${new Date(a.dateTime).toLocaleDateString('fr-FR')}`).join(', ') : 'Aucun'}
-
-CALENDRIER VACCINAL FRANÇAIS :
-- 2 mois : DTCaP-Hib-HepB, Pneumocoque
-- 4 mois : DTCaP-Hib-HepB, Pneumocoque
-- 5 mois : Méningocoque C
-- 11 mois : DTCaP-Hib-HepB, Pneumocoque
-- 12 mois : ROR, Méningocoque C
-- 16-18 mois : ROR (2ème dose)
-- 6 ans : DTCaP
-- 11-13 ans : DTCaP, HPV (filles)
-
-INSTRUCTIONS : Réponds UNIQUEMENT avec ce JSON valide (sans texte avant/après, sans balises) :
+${ragContext}
+INSTRUCTIONS : Compare les vaccins reçus aux recommandations officielles ci-dessus.
+Réponds UNIQUEMENT avec ce JSON valide (sans texte avant/après) :
 {"reminders":[{"type":"urgent|warning|info","title":"string","message":"string","action":"string"}]}
 
-Maximum 4 rappels pertinents selon l'âge. Types : urgent=vaccin manquant critique, warning=attention requise, info=information utile.`
+Maximum 4 rappels. urgent=vaccin manquant critique, warning=attention requise, info=information utile.`
 
-    const raw = await callGroq(prompt, 600, 0.2)
+    // maxTokens réduit à 400 (Pruning côté génération) — tâche simple, pas besoin de plus
+    const raw = await callGroq(prompt, 400, 0.2)
 
     let reminders = []
     try {
-      // Extraction robuste du JSON
       const jsonMatch = raw.match(/\{[\s\S]*"reminders"[\s\S]*\}/)
       if (jsonMatch) {
         const parsed = JSON.parse(jsonMatch[0])
-        reminders = (parsed.reminders || []).slice(0, 5)
+        reminders = (parsed.reminders || []).slice(0, 4)
       }
     } catch {
       reminders = [{
@@ -189,7 +224,14 @@ Maximum 4 rappels pertinents selon l'âge. Types : urgent=vaccin manquant critiq
       }]
     }
 
-    const result = { reminders, childName: child.firstName, model: PREFERRED_MODEL }
+    const result = {
+      reminders,
+      childName: child.firstName,
+      model: PREFERRED_MODEL,
+      ragDocsUsed: prunedDocs.length,     // nb de documents RAG après pruning
+      prunedOut: ragDocs.length - prunedDocs.length,  // nb de docs éliminés par pruning
+      technique: 'RAG + Pruning'
+    }
     setCache(cacheKey, result)
 
     res.json({ success: true, data: result })
