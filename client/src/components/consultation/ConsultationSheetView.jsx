@@ -11,6 +11,8 @@ const SECTIONS = [
   { key: 'pointsAttention', label: "Points d'attention", icon: '⚠️' }
 ]
 
+const sourceLabel = (s) => `${s.title} — ${s.base}${s.score != null ? ` (score ${s.score})` : ''}`
+
 const formatDate = (date) => new Date(date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
 
 // Les polices standard de jsPDF ne couvrent que Latin-1 (+ quelques signes) : on retire emojis et espaces spéciaux
@@ -76,6 +78,25 @@ function downloadPdf(sheet, childName) {
     y += 4
   })
 
+  // Sources RAG
+  const sources = sheet.meta?.ragSources || []
+  if (sources.length) {
+    ensureSpace(lineHeight * 3)
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(12)
+    doc.text('Sources utilisées', margin, y)
+    y += 6.5
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(9.5)
+    sources.forEach(s => {
+      const lines = doc.splitTextToSize(pdfText(sourceLabel(s)), width - 5)
+      ensureSpace(lineHeight)
+      doc.text('•', margin, y)
+      writeLines(lines, 5)
+    })
+    y += 4
+  }
+
   // Pied de page avec mention IA sur chaque page
   const pageCount = doc.getNumberOfPages()
   for (let i = 1; i <= pageCount; i++) {
@@ -92,6 +113,8 @@ export default function ConsultationSheetView({ sheet, childName }) {
   if (!sheet) return null
   const { content = {}, meta = {} } = sheet
   const totalTokens = (meta.promptTokens || 0) + (meta.completionTokens || 0)
+  const ragSources = meta.ragSources || []
+  const citedTitles = content.sources || []
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-slate-700 shadow-xl overflow-hidden">
@@ -137,12 +160,33 @@ export default function ConsultationSheetView({ sheet, childName }) {
           )
         })}
 
+        {ragSources.length > 0 && (
+          <section>
+            <h4 className="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-200 mb-2">
+              <span>📚</span> Sources utilisées
+            </h4>
+            <ul className="space-y-1.5">
+              {ragSources.map((s, i) => (
+                <li key={i} className="flex gap-2 text-xs text-gray-600 dark:text-gray-300 flex-wrap">
+                  <span className="text-sky-500 shrink-0">•</span>
+                  <span className="font-medium">{s.title}</span>
+                  <span className="text-gray-400 dark:text-gray-500">{s.base} · score {s.score}</span>
+                  {citedTitles.includes(s.title) && (
+                    <span className="px-1.5 rounded bg-sky-50 dark:bg-sky-900/40 text-sky-600 dark:text-sky-300">cité par l'IA</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
         {/* Ligne technique */}
         <p className="pt-3 border-t border-gray-100 dark:border-slate-700 text-[11px] text-gray-400 dark:text-gray-500">
           {[
             meta.model,
             meta.latencyMs != null && `${meta.latencyMs} ms`,
             totalTokens > 0 && `${totalTokens} tokens (${meta.promptTokens || 0} + ${meta.completionTokens || 0})`,
+            meta.ragDocsUsed != null && `RAG : ${meta.ragDocsUsed} documents (${meta.ragPruned || 0} élagués)`,
             meta.fromCache && '⚡ depuis le cache'
           ].filter(Boolean).join(' · ')}
         </p>
