@@ -1,0 +1,83 @@
+{
+  "source": "Conseils généraux de préparation de consultation — d'après les recommandations générales de santé publique (OMS / Santé publique France), à vérifier",
+  "url": "https://www.santepubliquefrance.fr",
+  "note": "Informations générales uniquement : aucun dosage, aucun médicament, aucun diagnostic. Toujours orienter vers le pédiatre.",
+  "documents": [
+    {
+      "id": "cons_preparer",
+      "title": "Préparer la consultation pédiatrique",
+      "content": "Avant la consultation, noter les questions par ordre d'importance, la date de début et l'évolution des symptômes, ce qui les aggrave ou les soulage, et les changements récents (alimentation, sommeil, mode de garde). Apporter le carnet de santé. Le pédiatre est la seule personne à même d'évaluer la situation de l'enfant.",
+      "keywords": ["consultation", "préparer", "questions", "carnet de santé", "symptômes", "pédiatre", "rendez-vous"]
+    },
+    {
+      "id": "cons_toux",
+      "title": "Toux de l'enfant",
+      "content": "La toux est fréquente chez l'enfant, souvent lors d'un rhume, et peut être plus marquée la nuit en position allongée. Pour la consultation, noter depuis quand l'enfant tousse, si la toux est sèche ou grasse, si elle survient surtout la nuit ou à l'effort, et s'il y a de la fièvre. Une respiration rapide ou difficile, un sifflement ou une toux qui dure plusieurs semaines justifient l'avis du pédiatre.",
+      "keywords": ["toux", "tousse", "tousser", "nuit", "nocturne", "rhume", "sèche", "grasse", "sifflement", "respiration"]
+    },
+    {
+      "id": "cons_fievre",
+      "title": "Fièvre de l'enfant",
+      "content": "On parle de fièvre au-delà de 38 °C. La fièvre est une réaction fréquente, souvent liée à une infection. Pour la consultation, noter les températures mesurées, leur durée, le comportement de l'enfant (joue-t-il, boit-il bien ?) et les autres symptômes. Ne donner aucun traitement sans l'avis d'un professionnel de santé. Chez un nourrisson de moins de 3 mois, toute fièvre nécessite un avis médical rapide.",
+      "keywords": ["fièvre", "température", "chaud", "thermomètre", "38", "infection", "nourrisson"]
+    },
+    {
+      "id": "cons_sommeil",
+      "title": "Sommeil de l'enfant",
+      "content": "Les besoins de sommeil varient selon l'âge et d'un enfant à l'autre. Des réveils nocturnes ou des difficultés d'endormissement sont fréquents. Un rituel du coucher régulier, un environnement calme et l'absence d'écrans avant le coucher sont généralement conseillés. Pour la consultation, noter les horaires de coucher et de lever, les siestes, les réveils et les ronflements éventuels.",
+      "keywords": ["sommeil", "dort", "dormir", "nuit", "réveils", "endormissement", "sieste", "coucher", "ronflement", "fatigue"]
+    },
+    {
+      "id": "cons_alimentation",
+      "title": "Alimentation et diversification",
+      "ageMin": 4,
+      "ageMax": 36,
+      "content": "La diversification alimentaire débute en général vers 6 mois, et pas avant 4 mois, selon les conseils du pédiatre. Il est fréquent qu'un jeune enfant refuse un aliment nouveau : plusieurs présentations sont parfois nécessaires. Pour la consultation, décrire ce que l'enfant mange et boit sur une journée type, les aliments refusés et toute réaction après un aliment.",
+      "keywords": ["alimentation", "manger", "repas", "diversification", "légumes", "refuse", "appétit", "biberon", "allaitement", "aliment"]
+    },
+    {
+      "id": "cons_digestif",
+      "title": "Troubles digestifs (vomissements, diarrhée, constipation)",
+      "content": "Vomissements, diarrhée, constipation ou douleurs de ventre sont fréquents chez l'enfant. En cas de diarrhée ou de vomissements, le principal risque est la déshydratation : surveiller que l'enfant boit et urine normalement. Pour la consultation, noter la fréquence, la durée et l'aspect des selles ou des vomissements. Un enfant très somnolent, qui ne boit plus ou n'urine plus doit être vu rapidement.",
+      "keywords": ["digestif", "vomissements", "vomit", "diarrhée", "constipation", "ventre", "selles", "déshydratation", "reflux"]
+    },
+    {
+      "id": "cons_peau",
+      "title": "Éruption cutanée et boutons",
+      "content": "Les éruptions cutanées (boutons, plaques, rougeurs) sont fréquentes et ont de nombreuses causes. Pour la consultation, noter la date d'apparition, la localisation, l'évolution, les démangeaisons, la fièvre associée et tout nouveau produit ou aliment. Une photo peut aider le pédiatre. Des taches rouges ou violacées qui ne s'effacent pas à la pression, surtout avec de la fièvre, nécessitent une consultation urgente.",
+      "keywords": ["peau", "éruption", "boutons", "plaques", "rougeurs", "démangeaisons", "eczéma", "taches", "cutané"]
+    },
+    {
+      "id": "cons_developpement",
+      "title": "Développement et langage",
+      "ageMin": 0,
+      "ageMax": 72,
+      "content": "Chaque enfant se développe à son propre rythme. Les étapes du développement (tenir assis, marcher, premiers mots, phrases) s'observent dans des fourchettes d'âge assez larges. Pour la consultation, décrire ce que l'enfant sait faire, comment il communique et comprend. Une perte d'acquisitions ou une inquiétude sur l'audition ou le langage doit être signalée au pédiatre.",
+      "keywords": ["développement", "langage", "parle", "mots", "marche", "motricité", "acquisitions", "audition", "retard"]
+    },
+    {
+      "id": "cons_ecrans",
+      "title": "Écrans et jeunes enfants",
+      "content": "Les recommandations générales de santé publique déconseillent l'exposition aux écrans chez les tout-petits et conseillent de limiter et d'accompagner leur usage ensuite, en évitant les écrans pendant les repas et avant le coucher. Pour la consultation, estimer le temps d'écran quotidien et le contexte d'utilisation.",
+      "keywords": ["écrans", "télévision", "tablette", "téléphone", "vidéos", "temps d'écran", "jeux vidéo"]
+    },
+    {
+      "id": "cons_comportement",
+      "title": "Comportement et émotions",
+      "content": "Colères, opposition, peurs ou anxiété de séparation font souvent partie du développement normal de l'enfant. Pour la consultation, décrire les situations concernées, leur fréquence, leur retentissement sur la vie familiale, la crèche ou l'école, et les changements récents dans l'entourage de l'enfant.",
+      "keywords": ["comportement", "colère", "crises", "opposition", "pleurs", "anxiété", "émotions", "agitation", "école"]
+    },
+    {
+      "id": "cons_douleurs",
+      "title": "Douleurs chez l'enfant",
+      "content": "Un enfant peut exprimer une douleur par des pleurs, un changement de comportement ou un refus de bouger. Pour la consultation, noter la localisation, l'intensité, la durée, les circonstances d'apparition et ce qui soulage. Ne donner aucun traitement sans l'avis d'un professionnel de santé. Une douleur intense, inhabituelle ou qui s'aggrave nécessite un avis médical rapide.",
+      "keywords": ["douleur", "mal", "pleure", "ventre", "tête", "oreille", "jambes", "intensité"]
+    },
+    {
+      "id": "cons_alerte",
+      "title": "Signes d'alerte nécessitant une consultation urgente",
+      "content": "Appeler le numéro d'urgence (SAMU : 190 en Tunisie, 15 en France) ou consulter en urgence en cas de : difficulté à respirer, lèvres bleutées, enfant très somnolent ou difficile à réveiller, convulsions, taches violacées sur la peau qui ne s'effacent pas à la pression, raideur de la nuque, refus de boire ou absence d'urines, fièvre chez un nourrisson de moins de 3 mois, ou toute inquiétude importante des parents.",
+      "keywords": ["urgence", "alerte", "urgent", "respirer", "convulsions", "somnolent", "taches", "nuque", "SAMU", "190", "grave"]
+    }
+  ]
+}

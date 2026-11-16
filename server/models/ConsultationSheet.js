@@ -30,7 +30,9 @@ const consultationSheetSchema = new mongoose.Schema({
     motifs: [String],
     antecedents: [String],
     questionsParent: [String],
-    pointsAttention: [String]
+    pointsAttention: [String],
+    // Titres des documents RAG cités par le LLM (absent si aucun)
+    sources: { type: [String], default: undefined }
   },
   meta: {
     model: String,
@@ -38,7 +40,11 @@ const consultationSheetSchema = new mongoose.Schema({
     promptTokens: Number,
     completionTokens: Number,
     fromCache: Boolean,
-    inputHash: String
+    inputHash: String,
+    // RAG : documents injectés dans le prompt, nb éliminés par le pruning, détail des sources
+    ragDocsUsed: Number,
+    ragPruned: Number,
+    ragSources: [{ _id: false, title: String, score: Number, base: String }]
   },
   status: {
     type: String,

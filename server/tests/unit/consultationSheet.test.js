@@ -26,6 +26,11 @@ const Measurement = require('../../models/Measurement')
 const Appointment = require('../../models/Appointment')
 const ConsultationQuestion = require('../../models/ConsultationQuestion')
 const ConsultationSheet = require('../../models/ConsultationSheet')
+const { ragVaccins } = require('../../services/rag.service')
+const { pruneDocs, RAG_MIN_SCORE, RAG_QUOTAS } = require('../../controllers/consultationSheet.controller')
+
+const BASE_ORDER = ['Conseils consultation', 'Vaccins FR 2024', 'Croissance OMS']
+const BASE_QUOTA = { 'Conseils consultation': RAG_QUOTAS.consultation, 'Vaccins FR 2024': RAG_QUOTAS.vaccins, 'Croissance OMS': RAG_QUOTAS.croissance }
 
 const MONGO_TEST_URI = process.env.MONGO_URI_TEST || process.env.MONGO_URI
 const mockCreate = Groq.mockCreate
@@ -212,6 +217,114 @@ describe('Cache par inputHash', () => {
     expect(res.status).toBe(201)
     expect(res.body.data.meta.fromCache).toBe(false)
     expect(mockCreate).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('RAG multi-sources', () => {
+  let res, prompt, userMessage
+
+  beforeAll(async () => {
+    mockCreate.mockReset()
+    mockCreate.mockResolvedValue(completion(JSON.stringify(VALID_SHEET)))
+    await addQuestion(`Est-ce normal que ${FIRST_NAME} tousse la nuit ?`, 'haute')
+    res = await generate()
+    expect(res.status).toBe(201)
+    prompt = promptOf(0)
+    userMessage = mockCreate.mock.calls[0][0].messages[1].content
+  })
+
+  test('question sur la toux → le document "Toux" est injecté dans une section séparée', () => {
+    const [childPart, refPart] = userMessage.split('DOCUMENTS DE RÉFÉRENCE')
+    expect(childPart).toContain("Données de l'enfant")
+    expect(refPart).toContain("Toux de l'enfant")
+    expect(childPart).not.toContain("Toux de l'enfant")
+  })
+
+  test('anonymisation tenue avec les documents RAG', () => {
+    expect(prompt.toLowerCase()).not.toContain(FIRST_NAME.toLowerCase())
+    expect(prompt).toContain("Est-ce normal que l'enfant tousse la nuit ?")
+    expect(prompt).not.toMatch(/[a-f0-9]{24}/i)
+  })
+
+  test('meta.ragSources : quota par base, ordre conseils → vaccins → croissance, score décroissant par base', () => {
+    const { ragSources, ragDocsUsed, ragPruned } = res.body.data.meta
+    expect(ragSources.length).toBeGreaterThan(0)
+    expect(ragDocsUsed).toBe(ragSources.length)
+    expect(typeof ragPruned).toBe('number')
+    ragSources.forEach(s => {
+      expect(BASE_ORDER).toContain(s.base)
+      expect(typeof s.title).toBe('string')
+      expect(s.score).toBeGreaterThanOrEqual(RAG_MIN_SCORE)
+      expect(s.score).toBe(Math.round(s.score * 1000) / 1000)
+    })
+
+    const baseIndexes = ragSources.map(s => BASE_ORDER.indexOf(s.base))
+    expect(baseIndexes).toEqual([...baseIndexes].sort((a, b) => a - b))
+    for (const base of BASE_ORDER) {
+      const scores = ragSources.filter(s => s.base === base).map(s => s.score)
+      expect(scores.length).toBeLessThanOrEqual(BASE_QUOTA[base])
+      expect(scores).toEqual([...scores].sort((a, b) => b - a))
+    }
+    // Les questions des tests précédents restent en attente : "Toux" figure parmi les conseils, pas forcément en tête
+    expect(ragSources[0].base).toBe('Conseils consultation')
+    expect(ragSources.filter(s => s.base === 'Conseils consultation').map(s => s.title)).toContain("Toux de l'enfant")
+  })
+
+  test('ordre d\'injection dans le prompt identique à meta.ragSources', () => {
+    const positions = res.body.data.meta.ragSources.map(s => userMessage.indexOf(`📄 ${s.title} [${s.base}]`))
+    positions.forEach(p => expect(p).toBeGreaterThan(-1))
+    expect(positions).toEqual([...positions].sort((a, b) => a - b))
+  })
+
+  test('documents sous le seuil élagués → meta.ragPruned, absents du prompt', async () => {
+    const spy = jest.spyOn(ragVaccins, 'retrieve').mockReturnValueOnce([
+      { id: 'doc_faible', title: 'Document faible pertinence', content: 'Contenu peu pertinent', metadata: {}, score: 0.01 }
+    ])
+    await addQuestion('Question pour le test du pruning')
+    const pruneRes = await generate()
+    spy.mockRestore()
+
+    expect(pruneRes.status).toBe(201)
+    expect(pruneRes.body.data.meta.ragPruned).toBeGreaterThanOrEqual(1)
+    expect(pruneRes.body.data.meta.ragSources.map(s => s.title)).not.toContain('Document faible pertinence')
+    expect(promptOf(0)).not.toContain('Document faible pertinence')
+  })
+
+  test('quota vaccins : 2 documents au-dessus du seuil → 1 seul gardé', async () => {
+    const spy = jest.spyOn(ragVaccins, 'retrieve').mockReturnValueOnce([
+      { id: 'vacc_a', title: 'Vaccin A test', content: 'Contenu A', metadata: {}, score: 0.4 },
+      { id: 'vacc_b', title: 'Vaccin B test', content: 'Contenu B', metadata: {}, score: 0.3 }
+    ])
+    await addQuestion('Question pour le test du quota')
+    const quotaRes = await generate()
+    spy.mockRestore()
+
+    expect(quotaRes.status).toBe(201)
+    const titles = quotaRes.body.data.meta.ragSources.map(s => s.title)
+    expect(titles).toContain('Vaccin A test')
+    expect(titles).not.toContain('Vaccin B test')
+    expect(quotaRes.body.data.meta.ragPruned).toBeGreaterThanOrEqual(1)
+  })
+
+  test('pruneDocs : seuil 0.1 + quota par groupe, ordre des groupes conservé', () => {
+    const docs = (...scores) => scores.map((score, i) => ({ id: `d${score}_${i}`, score }))
+    const { docs: kept, pruned } = pruneDocs([
+      { docs: docs(0.2, 0.05, 0.3), quota: 2 },
+      { docs: docs(0.9, 0.5), quota: 1 },
+      { docs: docs(0.09), quota: 1 }
+    ])
+    expect(RAG_MIN_SCORE).toBe(0.1)
+    expect(kept.map(d => d.score)).toEqual([0.3, 0.2, 0.9])
+    expect(pruned).toBe(3)
+  })
+
+  test('content.sources ne garde que les titres de documents réellement fournis', async () => {
+    mockCreate.mockResolvedValue(completion(JSON.stringify({ ...VALID_SHEET, sources: ["Toux de l'enfant", 'Source inventée'] })))
+    await addQuestion('Question pour le test des sources')
+    const srcRes = await generate()
+
+    expect(srcRes.status).toBe(201)
+    expect(srcRes.body.data.content.sources).toEqual(["Toux de l'enfant"])
   })
 })
 

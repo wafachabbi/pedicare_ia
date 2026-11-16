@@ -1,4 +1,5 @@
 const crypto = require('crypto')
+const path = require('path')
 const mongoose = require('mongoose')
 const Groq = require('groq-sdk')
 const ConsultationSheet = require('../models/ConsultationSheet')
@@ -7,6 +8,7 @@ const Child = require('../models/Child')
 const Vaccination = require('../models/Vaccination')
 const Measurement = require('../models/Measurement')
 const Appointment = require('../models/Appointment')
+const { RagIndex, ragVaccins, ragCroissance } = require('../services/rag.service')
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
 
@@ -21,11 +23,28 @@ const SYSTEM_PROMPT = `Tu es un assistant pédiatrique. Tu rédiges en français
 Règles strictes :
 - Ne JAMAIS poser de diagnostic ni prescrire de traitement ou de médicament.
 - N'invente aucune donnée absente de l'entrée.
+- Appuie-toi sur les documents de référence fournis quand ils sont pertinents ; n'invente aucune recommandation absente des documents ; ne fais jamais de diagnostic.
 - Réponds UNIQUEMENT avec un objet JSON valide, sans texte avant ou après, avec exactement ces clés :
-{"resume":"3 phrases maximum","motifs":["motif de consultation"],"antecedents":["vaccinations, allergies, mesures pertinentes"],"questionsParent":["questions du parent reformulées clairement, triées par priorité décroissante"],"pointsAttention":["éléments à vérifier pendant la consultation"]}
+{"resume":"3 phrases maximum","motifs":["motif de consultation"],"antecedents":["vaccinations, allergies, mesures pertinentes"],"questionsParent":["questions du parent reformulées clairement, triées par priorité décroissante"],"pointsAttention":["éléments à vérifier pendant la consultation"],"sources":["titres exacts des documents de référence réellement utilisés"]}
 Utilise un tableau vide si une section n'a pas de contenu.`
 
 const AI_ERROR = { code: 'AI_ERROR', message: 'La génération de la fiche a échoué, réessayez' }
+
+// ─── RAG multi-sources ──────────────────────────────────────────────────────
+// Index local des conseils de consultation ; si le chargement échoue, la fiche fonctionne sans
+let ragConsultation = null
+try {
+  ragConsultation = new RagIndex('Conseils consultation').loadFromFile(path.join(__dirname, '../data/rag-consultation.json'))
+} catch (err) {
+  console.error('⚠️  Erreur chargement index RAG consultation :', err.message)
+}
+
+// Pruning : documents sous ce score cosinus écartés, puis quota de documents par base
+const RAG_MIN_SCORE = 0.1
+const RAG_QUOTAS = { consultation: 2, vaccins: 1, croissance: 1 }
+
+const MEASURE_LABEL = { weight: 'poids', height: 'taille', headCircumference: 'périmètre crânien' }
+const SEX_LABEL = { M: 'garçons', F: 'filles' }
 
 // ─── Nettoyage réponse Qwen (supprime balises <think>) ──────────────────────
 function cleanResponse(text) {
@@ -52,11 +71,16 @@ const notFound = (res, message) =>
   res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message } })
 
 // ─── Anonymisation ──────────────────────────────────────────────────────────
-const computeAge = (dateOfBirth) => {
+const ageInMonths = (dateOfBirth) => {
   const now = new Date()
   const dob = new Date(dateOfBirth)
   let months = (now.getFullYear() - dob.getFullYear()) * 12 + (now.getMonth() - dob.getMonth())
   if (now.getDate() < dob.getDate()) months--
+  return months
+}
+
+const computeAge = (dateOfBirth) => {
+  const months = ageInMonths(dateOfBirth)
   return months < 24 ? `${months} mois` : `${Math.floor(months / 12)} ans`
 }
 
@@ -99,13 +123,70 @@ const buildAnonymizedInput = (child, { vaccinations, measurement, appointment, q
   }))
 })
 
+// ─── Récupération RAG ───────────────────────────────────────────────────────
+// Un index absent ou non construit ne bloque jamais la fiche
+const safeRetrieve = (index, query, topK, filters) => {
+  if (!index?.built || !query.trim()) return []
+  try {
+    return index.retrieve(query, topK, filters).map(doc => ({ ...doc, base: index.name }))
+  } catch {
+    return []
+  }
+}
+
+// Par groupe [{ docs, quota }] : retire les documents sous le seuil, garde les `quota` meilleurs.
+// L'ordre des groupes est conservé : c'est l'ordre d'injection dans le prompt.
+const pruneDocs = (groups) => {
+  let total = 0
+  const kept = []
+  for (const { docs, quota } of groups) {
+    total += docs.length
+    kept.push(...docs
+      .filter(d => d.score >= RAG_MIN_SCORE)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, quota))
+  }
+  return { docs: kept, pruned: total - kept.length }
+}
+
+// Requêtes construites uniquement à partir de l'entrée anonymisée (jamais le prénom).
+// Ordre d'injection : conseils liés aux questions du parent, puis vaccins, puis croissance.
+function retrieveContext(input, child) {
+  const ageMonths = ageInMonths(child.dateOfBirth)
+  const questionsText = input.questionsEnAttente.map(q => q.texte).join(' ')
+
+  let croissanceDocs = []
+  const m = input.derniereMesure
+  const mesure = m && (m.poidsKg != null ? 'weight' : m.tailleCm != null ? 'height' : m.perimetreCranienCm != null ? 'headCircumference' : null)
+  if (mesure) {
+    const sexe = SEX_LABEL[child.gender] ? child.gender : undefined
+    const query = `poids taille percentile ${MEASURE_LABEL[mesure]} ${SEX_LABEL[sexe] || ''} ${ageMonths} mois`
+    croissanceDocs = safeRetrieve(ragCroissance, query, 2, { sexe, mesure })
+  }
+
+  return pruneDocs([
+    { docs: safeRetrieve(ragConsultation, questionsText, 3, { ageMonths }), quota: RAG_QUOTAS.consultation },
+    { docs: safeRetrieve(ragVaccins, `vaccins recommandés ${input.age}`, 2, { ageMonths }), quota: RAG_QUOTAS.vaccins },
+    { docs: croissanceDocs, quota: RAG_QUOTAS.croissance }
+  ])
+}
+
+const buildUserMessage = (input, docs) => {
+  let message = `Données de l'enfant (JSON) :\n${JSON.stringify(input, null, 2)}`
+  if (docs.length) {
+    message += '\n\nDOCUMENTS DE RÉFÉRENCE (informations générales, à utiliser seulement si pertinentes) :\n'
+    message += docs.map(d => `📄 ${d.title} [${d.base}]\n${d.content}`).join('\n\n')
+  }
+  return message
+}
+
 // ─── Appel Groq ─────────────────────────────────────────────────────────────
-async function createCompletion(model, input, jsonMode) {
+async function createCompletion(model, userMessage, jsonMode) {
   return groq.chat.completions.create({
     model,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'user', content: `Données de l'enfant (JSON) :\n${JSON.stringify(input, null, 2)}` }
+      { role: 'user', content: userMessage }
     ],
     temperature: 0.3,
     max_tokens: 700,
@@ -114,25 +195,25 @@ async function createCompletion(model, input, jsonMode) {
 }
 
 // Mode JSON d'abord ; 400 → modèle sans response_format ; 404/503 → modèle de secours
-async function callModel(model, input) {
+async function callModel(model, userMessage) {
   try {
-    return await createCompletion(model, input, true)
+    return await createCompletion(model, userMessage, true)
   } catch (err) {
-    if (err.status === 400) return createCompletion(model, input, false)
+    if (err.status === 400) return createCompletion(model, userMessage, false)
     throw err
   }
 }
 
-async function generateWithGroq(input) {
+async function generateWithGroq(userMessage) {
   const start = Date.now()
   let model = PREFERRED_MODEL
   let res
   try {
-    res = await callModel(model, input)
+    res = await callModel(model, userMessage)
   } catch (err) {
     if (err.status !== 404 && err.status !== 503) throw err
     model = FALLBACK_MODEL
-    res = await callModel(model, input)
+    res = await callModel(model, userMessage)
   }
   return {
     raw: cleanResponse(res.choices[0]?.message?.content || ''),
@@ -148,8 +229,9 @@ async function generateWithGroq(input) {
 const toStringArray = (value) =>
   Array.isArray(value) ? value.filter(v => typeof v === 'string' && v.trim()).map(v => v.trim()).slice(0, 15) : []
 
-// Parse + normalise la réponse ; null si inexploitable
-function parseSheet(raw) {
+// Parse + normalise la réponse ; null si inexploitable.
+// Seules les sources correspondant à un document réellement fourni sont conservées.
+function parseSheet(raw, docTitles = []) {
   let parsed
   try {
     parsed = JSON.parse(raw)
@@ -159,13 +241,16 @@ function parseSheet(raw) {
     try { parsed = JSON.parse(jsonMatch[0]) } catch { return null }
   }
   if (!parsed || typeof parsed.resume !== 'string' || !parsed.resume.trim()) return null
-  return {
+  const sheet = {
     resume: parsed.resume.trim(),
     motifs: toStringArray(parsed.motifs),
     antecedents: toStringArray(parsed.antecedents),
     questionsParent: toStringArray(parsed.questionsParent),
     pointsAttention: toStringArray(parsed.pointsAttention)
   }
+  const sources = toStringArray(parsed.sources).filter(title => docTitles.includes(title))
+  if (sources.length) sheet.sources = sources
+  return sheet
 }
 
 // ─── POST /api/consultation-sheets/children/:childId ────────────────────────
@@ -197,7 +282,11 @@ const generateSheet = async (req, res, next) => {
     questions.sort((a, b) => PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority])
 
     const input = buildAnonymizedInput(child, { vaccinations, measurement, appointment, questions })
-    const inputHash = crypto.createHash('sha256').update(JSON.stringify(input)).digest('hex')
+    const { docs: ragDocs, pruned: ragPruned } = retrieveContext(input, child)
+    // Les documents récupérés font partie de l'entrée : un changement de corpus invalide le cache
+    const inputHash = crypto.createHash('sha256')
+      .update(JSON.stringify({ input, ragDocIds: ragDocs.map(d => d.id) }))
+      .digest('hex')
     const appointmentId = appointment?._id || null
 
     // Même entrée (et même RDV) → fiche existante, sans rappeler le LLM
@@ -210,8 +299,8 @@ const generateSheet = async (req, res, next) => {
 
     let content, meta
     try {
-      const result = await generateWithGroq(input)
-      content = parseSheet(result.raw)
+      const result = await generateWithGroq(buildUserMessage(input, ragDocs))
+      content = parseSheet(result.raw, ragDocs.map(d => d.title))
       meta = result.meta
     } catch (err) {
       // Log serveur uniquement : jamais l'erreur brute ni la clé côté client
@@ -226,7 +315,14 @@ const generateSheet = async (req, res, next) => {
       appointmentId,
       pediatreId: appointment?.pediatreId || null,
       content,
-      meta: { ...meta, fromCache: false, inputHash }
+      meta: {
+        ...meta,
+        fromCache: false,
+        inputHash,
+        ragDocsUsed: ragDocs.length,
+        ragPruned,
+        ragSources: ragDocs.map(d => ({ title: d.title, score: Math.round(d.score * 1000) / 1000, base: d.base }))
+      }
     })
     res.status(201).json({ success: true, data: sheet })
   } catch (err) { handleError(err, res, next) }
@@ -281,4 +377,4 @@ const deleteSheet = async (req, res, next) => {
   } catch (err) { handleError(err, res, next) }
 }
 
-module.exports = { buildAnonymizedInput, generateSheet, getChildSheets, getMySharedSheets, getSheet, deleteSheet }
+module.exports = { buildAnonymizedInput, retrieveContext, pruneDocs, RAG_MIN_SCORE, RAG_QUOTAS, generateSheet, getChildSheets, getMySharedSheets, getSheet, deleteSheet }
